@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h> 
+#include <time.h>   
 
 #include "game_data.h"
 #define MAX_INPUT 50
@@ -65,10 +67,36 @@ void bacaInput(char *input) {
     }
 }
 
+void tambahkan_item_ke_bag() {
+    printf("Item Koin Emas ditambahkan ke tas.\n");
+}
+
+void start_fight() {
+    printf("Pertarungan dimulai!\n");
+}
 
 void explore(){
-    printf("explore\n");
+    int Nomor_Acak = rand () %100;
+
+    printf("Anda mulai menjelajahi area...\n");
+
+    if (Nomor_Acak >= 0 && Nomor_Acak <= 60) {
+        // Monster: 0-60 (61%)
+        printf("Seekor monster muncul!\n");
+        start_fight();
+    } 
+    else if (Nomor_Acak >= 61 && Nomor_Acak <= 85) {
+        // Item: 61-85 (25%)
+        printf("Anda menemukan sebuah item tersembunyi!\n");
+        tambahkan_item_ke_bag();
+    } 
+    else { 
+        // Kosong: 86-99 (14%)
+        printf("Anda menjelajah, tetapi tidak terjadi apa-apa.\n");
+    }
 }
+
+
 
 void bag(){
     printf("bag\n");
