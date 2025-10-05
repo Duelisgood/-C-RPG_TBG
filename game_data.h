@@ -17,6 +17,7 @@ struct Monster {
     int monsterID;
     char nama[MAX_NAMA];
     int healthPoint;
+    int attackPower;
 };
 
 
