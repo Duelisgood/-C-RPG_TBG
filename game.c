@@ -23,9 +23,8 @@ int BONUS_ATK = 0;
 int SKILL_1_CD = 0; 
 int SKILL_2_CD = 0; 
 
-// ================Deklarasi Lainnya>>>
-// extern struct Item daftarItem[];
-// extern const int JUMLAH_ITEM;
+int ACTIVE_SKILL_1_INDEX = 0; 
+int ACTIVE_SKILL_2_INDEX = 1;
 
 //=====================================================
 void bersihkanString(char *str) {
@@ -61,7 +60,6 @@ void bacaInput(char *input) {
     }
 }
 
-
   //===================================Fight and Explore>>>>>  
 struct Monster get_random_monster() {
     if (JUMLAH_MONSTER == 0) {
@@ -89,7 +87,6 @@ void monster_turn(struct Monster *musuh) {
     printf("\n--- Giliran %s ---\n", musuh->nama);
 
     if (aksi_monster < 50) { // 50% peluang Attack (0 - 49)
-        // Aksi 1: SERANGAN DASAR
         int damage = musuh->attackPower - DEF;
         if (damage < 0) damage = 0;
 
@@ -97,16 +94,13 @@ void monster_turn(struct Monster *musuh) {
         printf("%s menyerang dengan serangan dasar! Anda menerima %d damage.\n", musuh->nama, damage);
     } 
     else if (aksi_monster < 75) { // 25% peluang Heal (50 - 74)
-        // Aksi 2: HEAL
-        int heal_amount = musuh->healthPoint * 0.10; // Heal 10% dari HP
+        int heal_amount = musuh->healthPoint * 0.10; 
         if (heal_amount < 1) heal_amount = 1;
 
         musuh->healthPoint += heal_amount;
         printf("%s melakukan penyembuhan dan memulihkan %d HP.\n", musuh->nama, heal_amount);
     }
     else { // 25% peluang Skill (75 - 99)
-        // Aksi 3: SKILL KHUSUS
-        // Gunakan stat skillPower monster untuk damage tambahan
         int skill_damage = musuh->attackPower + musuh->skillPower;
         int damage = skill_damage - DEF;
         if (damage < 0) damage = 0;
@@ -121,14 +115,14 @@ void monster_turn(struct Monster *musuh) {
     }
 }
 
-
 void lakukan_pertarungan(struct Monster musuh) {
 
     char input[MAX_INPUT];
     struct Monster *musuh_ptr = &musuh; 
 
-    struct Skill skill1_data = daftarSkill[2];
-    struct Skill skill2_data = daftarSkill[4];
+    struct Skill skill1_data = daftarSkill[ACTIVE_SKILL_1_INDEX]; 
+    struct Skill skill2_data = daftarSkill[ACTIVE_SKILL_2_INDEX];
+
     
     printf("\n--> PERTARUNGAN DIMULAI dengan %s! (HP: %d)\n", musuh.nama, musuh.healthPoint);
 
@@ -303,7 +297,72 @@ void upgrade(){
 }
 
 
-//================Item and use Item
+//================use item and use skill
+void use_skill() {
+    int skill_id_baru;
+    int skill_slot;
+    
+    printf("\n--- UBAH SKILL LOADOUT ---\n");
+    
+    // Tampilkan Daftar Skill Tersedia
+    printf("Skill Tersedia (ID | Nama | CD): \n");
+    for (int i = 0; i < JUMLAH_SKILL; i++) {
+        printf("  ID %d: %s (CD: %d)\n", 
+               daftarSkill[i].skillID, daftarSkill[i].nama, daftarSkill[i].cooldown_max);
+    }
+
+    // Input Slot
+    printf("Pilih Slot (1 atau 2) yang ingin diubah: ");
+    if (scanf("%d", &skill_slot) != 1 || (skill_slot != 1 && skill_slot != 2)) {
+        printf("Input slot tidak valid.\n");
+        
+        // GUNAKAN KURUNG KURAWAL untuk logika pembersihan dan return:
+        while (getchar() != '\n'); 
+        return; 
+    }
+    // HANYA pembersihan buffer setelah input yang berhasil:
+    while (getchar() != '\n');
+
+    // Input ID Skill Baru (Contoh perbaikan di sekitar baris 333)
+    printf("Masukkan ID Skill baru yang akan dipasang: ");
+    if (scanf("%d", &skill_id_baru) != 1) {
+        printf("Input ID skill tidak valid.\n");
+        
+        // GUNAKAN KURUNG KURAWAL untuk logika pembersihan dan return:
+        while (getchar() != '\n'); 
+        return; 
+    }
+    // HANYA pembersihan buffer setelah input yang berhasil:
+    while (getchar() != '\n');  // Membersihkan buffer
+
+    // Cari Indeks Skill berdasarkan ID yang dimasukkan user
+    int skill_index = -1;
+    for (int i = 0; i < JUMLAH_SKILL; i++) {
+        if (daftarSkill[i].skillID == skill_id_baru) {
+            skill_index = i;
+            break;
+        }
+    }
+
+    if (skill_index == -1) {
+        printf("Skill dengan ID %d tidak ditemukan.\n", skill_id_baru);
+        return;
+    }
+    
+    // Terapkan Perubahan
+    if (skill_slot == 1) {
+        ACTIVE_SKILL_1_INDEX = skill_index;
+        printf("Slot 1 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
+    } else { // skill_slot == 2
+        ACTIVE_SKILL_2_INDEX = skill_index;
+        printf("Slot 2 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
+    }
+    
+    // Reset Cooldown skill yang baru dipasang
+    if (skill_slot == 1) SKILL_1_CD = 0;
+    if (skill_slot == 2) SKILL_2_CD = 0;
+}
+
 struct Item get_item_by_id(int id) {
     for (int i = 0; i < JUMLAH_ITEM; i++) {
         if (daftarItem[i].itemID == id) {
@@ -326,22 +385,25 @@ void apply_stat_boosts() {
     ATK += BONUS_ATK;
 }
 
-void use_item() {
+// Deklarasi extern (jika belum ada)
+extern int ATK;
+extern int BONUS_ATK;
+extern int EQUIPPED_WEAPON_ID;
+// ... (Deklarasi fungsi get_item_by_id dan apply_stat_boosts) ...
+
+void use_equipment() {
     int input_id;
-    printf("\n--- GUNAKAN ITEM ---\n");
-    printf("Masukkan ID Item (Contoh: 101 untuk Pedang Kayu): ");
+    printf("\n--- EQUIP ITEM (Weapon/Armor) ---\n");
+    printf("Masukkan ID Item untuk dilengkapi: ");
     
-    // Baca input ID dari user
+    // Membaca input ID
     if (scanf("%d", &input_id) != 1) {
         printf("Input tidak valid. Harap masukkan angka.\n");
-        // Membersihkan buffer input (penting setelah scanf)
         while (getchar() != '\n'); 
         return;
     }
-    // Membersihkan buffer input setelah scanf
-    while (getchar() != '\n'); 
+    while (getchar() != '\n'); // Membersihkan buffer
 
-    // Cari item
     struct Item item_pilihan = get_item_by_id(input_id);
 
     if (item_pilihan.itemID == 0) {
@@ -349,25 +411,19 @@ void use_item() {
         return;
     }
 
-    printf("Anda mencoba menggunakan %s (Tipe: %s).\n", 
-           item_pilihan.nama, item_pilihan.type);
-
-    // LOGIKA KHUSUS UNTUK WEAPON (EQUIP)
+    // LOGIKA KHUSUS UNTUK WEAPON
     if (strcmp(item_pilihan.type, "WEAPON") == 0) {
         
-        // 1. Cek apakah ada Weapon yang sudah dilengkapi
+        // Cek Weapon lama dan lepaskan stat-nya
         if (EQUIPPED_WEAPON_ID != 0) {
-            // Unequip Weapon lama
             struct Item old_weapon = get_item_by_id(EQUIPPED_WEAPON_ID);
             BONUS_ATK -= old_weapon.stat_boost;
             printf("Weapon lama (%s) dilepas.\n", old_weapon.nama);
         }
 
-        // 2. Equip Weapon baru
+        // Equip Weapon baru
         EQUIPPED_WEAPON_ID = item_pilihan.itemID;
         BONUS_ATK += item_pilihan.stat_boost;
-        
-        // 3. Perbarui stat ATK total Player
         apply_stat_boosts(); 
 
         printf("Berhasil melengkapi %s! Bonus ATK: +%d.\n", 
@@ -375,13 +431,15 @@ void use_item() {
         printf("ATK total Anda sekarang: %d.\n", ATK);
 
     } 
-    // LOGIKA LAIN (misalnya CONSUMABLE)
+    // LOGIKA LAIN (ARMOR, dll.)
+    else if (strcmp(item_pilihan.type, "ARMOR") == 0) {
+        printf("Item tipe ARMOR belum didukung untuk dilengkapi.\n");
+    }
     else if (strcmp(item_pilihan.type, "CONSUMABLE") == 0) {
-        printf("%s digunakan. Anda mendapatkan efek (Logika Consumable belum diimplementasikan).\n", item_pilihan.nama);
-        // Di sini Anda akan mengurangi item dari inventory dan menerapkan efeknya (misal: HP += 10)
+         printf("Gunakan item Consumable di Inventory (Belum diimplementasikan).\n");
     }
     else {
-        printf("%s tidak dapat dilengkapi atau digunakan saat ini.\n", item_pilihan.nama);
+        printf("%s tidak dapat dilengkapi.\n", item_pilihan.nama);
     }
 }
 
@@ -392,7 +450,8 @@ void help(){
     printf("explore\n");
     printf("bag\n");
     printf("upgrade\n");
-    printf("use\n");
+    printf("use_equipment\n");
+    printf("use_skill\n");
     printf("quit\n");
     printf("help\n"); // Jangan lupa tambahkan 'help' itu sendiri!
     printf("------------------------\n");
@@ -423,10 +482,13 @@ void main_loop(){
         } 
         else if (strcmp(aksiPengguna, "upgrade_(item)") == 0) {
             upgrade();
+        } 
+        else if (strcmp(aksiPengguna, "use_equipment") == 0) {
+            use_equipment(); 
+        }
+        else if (strcmp(aksiPengguna, "use_skill") == 0) {
+            use_skill(); 
         }  
-        else if (strcmp(aksiPengguna, "use") == 0 || strcmp(aksiPengguna, "use_item") == 0) {
-            use_item(); 
-        }   
         else if (strcmp(aksiPengguna, "explore") == 0) {
             explore(); 
         } 
