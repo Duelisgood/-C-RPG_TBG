@@ -6,12 +6,17 @@
 #include "game_data.h"
 #define MAX_INPUT 50
 
+//=====================================player stats>>>
     int HP = 10;
     int ATK = 2;
     int DEF = 0;
     int LEVEL = 1;
     int XP = 0;
     int GOLD = 0;
+
+//=================================Skill CD>>
+int SKILL_1_CD = 0; 
+int SKILL_2_CD = 0; 
 
 //=====================================================
 void bersihkanString(char *str) {
@@ -81,63 +86,89 @@ void monster_turn(struct Monster *musuh) {
 }
 
 void lakukan_pertarungan(struct Monster musuh) {
-    char input[MAX_INPUT];
 
+    char input[MAX_INPUT];
+    struct Monster *musuh_ptr = &musuh; 
+
+    struct Skill skill1_data = daftarSkill[2];
+    struct Skill skill2_data = daftarSkill[4];
+    
     printf("\n--> PERTARUNGAN DIMULAI dengan %s! (HP: %d)\n", musuh.nama, musuh.healthPoint);
 
-    // Gunakan pointer untuk Monster agar perubahan HP-nya bisa disimpan
-    struct Monster *musuh_ptr = &musuh; 
-    
-    // Loop Pertarungan Utama
     while (HP > 0 && musuh_ptr->healthPoint > 0) {
         
+        // --- 1. PENGURANGAN COOLDOWN ---
+        if (SKILL_1_CD > 0) SKILL_1_CD--;
+        if (SKILL_2_CD > 0) SKILL_2_CD--;
+
         // Tampilkan Status
         printf("\n== Status ==\n");
         printf("Player HP: %d | %s HP: %d\n", HP, musuh_ptr->nama, musuh_ptr->healthPoint);
-        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (Heal +1) | [KABUR]\n");
+
+        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s) (CD: %d) | [SKILL 2] (%s) (CD: %d) | [KABUR]\n",
+            skill1_data.nama, SKILL_1_CD, skill2_data.nama, SKILL_2_CD);
         
-        // --- GILIRAN PLAYER ---
-        
+        // --- 2. GILIRAN PLAYER ---
         if (fgets(input, MAX_INPUT, stdin) == NULL) continue;
         bersihkanString(input);
 
-        if (strcmp(input, "ATTACK") == 0 || strcmp(input, "attack") == 0) {
+        int turn_taken = 0;
+
+        if (strcmp(input, "ATTACK") == 0) {
             musuh_ptr->healthPoint -= ATK;
             printf("Anda menyerang %s dan memberikan %d damage!\n", musuh_ptr->nama, ATK);
+            turn_taken = 1;
         } 
-        else if (strcmp(input, "SKILL 1") == 0 || strcmp(input, "skill 1") == 0) {
-            HP += 1;
-            printf("Anda menggunakan Skill 1 dan memulihkan 1 HP.\n");
-        } 
-        else if (strcmp(input, "KABUR") == 0 || strcmp(input, "kabur") == 0) {
-            printf("Anda mencoba kabur...\n");
-            // Implementasikan logika kabur (misalnya 50% berhasil)
-            if (rand() % 100 < 50) {
-                 printf("Berhasil kabur!\n");
-                 return; // Keluar dari fungsi dan kembali ke main loop
-            } else {
-                 printf("Gagal kabur! Monster menyerang...\n");
-                 // Monster tetap menyerang jika gagal kabur
-                 monster_turn(musuh_ptr); 
+        else if (strcmp(input, "SKILL 1") == 0) {
+            if (SKILL_1_CD > 0) {
+                printf("Skill 1 (%s) sedang cooldown (%d turn tersisa).\n", skill1_data.nama, SKILL_1_CD);
+                continue; // Ulangi giliran Player
             }
+            
+                if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
+                    HP += skill1_data.effect_value;
+                } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
+                    musuh_ptr->healthPoint -= (ATK + skill1_data.effect_value);
+                }
+
+                printf("Anda menggunakan %s!\n", skill1_data.nama);
+                SKILL_1_CD = skill1_data.cooldown_max; 
+                turn_taken = 1;
+            } 
+
+        else if (strcmp(input, "SKILL 2") == 0) {
+            if (SKILL_2_CD > 0) {
+                printf("Skill 2 (%s) sedang cooldown (%d turn tersisa).\n", skill2_data.nama, SKILL_2_CD);
+                continue; // Ulangi giliran Player
+            }
+                if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
+                    HP += skill1_data.effect_value;
+                } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
+                    musuh_ptr->healthPoint -= (ATK + skill1_data.effect_value);
+                }
+            }
+
+        else if (strcmp(input, "KABUR") == 0) {
+
+            return; 
         }
         else {
             printf("Perintah tidak dikenal. Coba lagi.\n");
             continue; // Ulangi giliran Player
         }
 
-        // Cek kondisi setelah aksi Player
+        // --- 3. Cek Kemenangan dan Giliran Musuh ---
+        
         if (musuh_ptr->healthPoint <= 0) {
             printf("\n!!! %s Tumbang! Anda menang!\n", musuh_ptr->nama);
-            printf("\n Silahkan Menjelajah lagi\n");
-            // Tambahkan logika XP dan GOLD di sini
             return; 
         }
+        
+        // Hanya jika Player mengambil aksi yang valid (turn_taken == 1)
+        if (turn_taken) {
+            monster_turn(musuh_ptr);
+        }
 
-        // --- GILIRAN MUSUH ---
-        monster_turn(musuh_ptr);
-
-        // Cek kondisi setelah aksi Musuh
         if (HP <= 0) {
             printf("\n!!! Anda dikalahkan oleh %s. GAME OVER.\n", musuh_ptr->nama);
             // Tambahkan logika Game Over di sini

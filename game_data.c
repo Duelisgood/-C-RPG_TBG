@@ -21,3 +21,18 @@ struct Monster daftarMonster[] = {
 
 
 const int JUMLAH_MONSTER = sizeof(daftarMonster) / sizeof(daftarMonster[0]);
+
+struct Skill daftarSkill[] = {
+   
+    {.skillID = 1, .nama = "Minor Heal", .cooldown_max = 2, .effect_type = "HEAL", .effect_value = 5},
+    
+    {.skillID = 2, .nama = "Power Slash", .cooldown_max = 3, .effect_type = "ATTACK", .effect_value = 3},
+   
+    {.skillID = 3, .nama = "Defense Stance", .cooldown_max = 4, .effect_type = "HEAL", .effect_value = 10}, 
+    
+    {.skillID = 4, .nama = "Triple Shot", .cooldown_max = 5, .effect_type = "ATTACK", .effect_value = 8}, 
+    
+    {.skillID = 5, .nama = "Emergency Mend", .cooldown_max = 6, .effect_type = "HEAL", .effect_value = 25}
+};
+
+const int JUMLAH_SKILL = sizeof(daftarSkill) / sizeof(daftarSkill[0]);

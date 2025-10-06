@@ -19,7 +19,17 @@ struct Monster {
     int healthPoint;
     int attackPower;
 };
+struct Skill {
+    int skillID;
+    char nama[MAX_NAMA];
+    int cooldown_max;       // Cooldown maksimal dalam turn
+    char effect_type[10];   // "HEAL" atau "ATTACK"
+    int effect_value;       // Nilai efek (HP atau Damage tambahan)
+};
 
+
+extern struct Skill daftarSkill[];
+extern const int JUMLAH_SKILL;
 
 extern struct Item daftarItem[];
 extern const int JUMLAH_ITEM;
