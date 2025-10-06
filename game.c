@@ -6,7 +6,12 @@
 #include "game_data.h"
 #define MAX_INPUT 50
 
+#define MAX_USERNAME 50
+
+
+
 //=====================================player stats>>>
+    char CURRENT_USERNAME[MAX_USERNAME] = ""; 
     int HP = 10;
     int ATK = 2;
     int DEF = 0;
@@ -25,6 +30,85 @@ int SKILL_2_CD = 0;
 
 int ACTIVE_SKILL_1_INDEX = 0; 
 int ACTIVE_SKILL_2_INDEX = 1;
+
+//=====Game Save
+void save_game_data();
+void load_game_data(const char *username);
+void check_for_level_up();
+
+void save_game_data() {
+    if (strcmp(CURRENT_USERNAME, "") == 0) {
+        // Hanya simpan jika ada pemain yang login
+        return; 
+    }
+
+    FILE *file = fopen(CURRENT_USERNAME, "w");
+    if (file == NULL) {
+        printf("ERROR: Gagal menyimpan data ke file %s. Periksa izin folder.\n", CURRENT_USERNAME);
+        return;
+    }
+
+    // Tulis semua stat Player ke file
+    fprintf(file, "HP=%d\n", HP);
+    fprintf(file, "ATK=%d\n", ATK);
+    fprintf(file, "DEF=%d\n", DEF);
+    fprintf(file, "LEVEL=%d\n", LEVEL);
+    fprintf(file, "XP=%d\n", XP);
+    fprintf(file, "GOLD=%d\n", GOLD);
+    // Tambahkan stat lain di sini jika ada (misal: EQUIPPED_WEAPON_ID)
+
+    fclose(file);
+    printf("[Data berhasil disimpan ke %s]\n", CURRENT_USERNAME);
+}
+
+void load_game_data(const char *username) {
+    FILE *file = fopen(username, "r");
+    if (file == NULL) {
+        printf("ERROR: Gagal memuat data dari file %s.\n", username);
+        return;
+    }
+
+    char key[20];
+    int value;
+
+    // Baca setiap baris data dalam format KEY=VALUE
+    while (fscanf(file, "%19[^=]=%d\n", key, &value) == 2) {
+        if (strcmp(key, "HP") == 0) HP = value;
+        else if (strcmp(key, "ATK") == 0) ATK = value;
+        else if (strcmp(key, "DEF") == 0) DEF = value;
+        else if (strcmp(key, "LEVEL") == 0) LEVEL = value;
+        else if (strcmp(key, "XP") == 0) XP = value;
+        else if (strcmp(key, "GOLD") == 0) GOLD = value;
+        // Tambahkan else if untuk stat lain di sini
+    }
+
+    fclose(file);
+    printf("Data %s dimuat. Level %d | HP %d | ATK %d.\n", username, LEVEL, HP, ATK);
+}
+
+void check_for_level_up() {
+    int exp_needed = 100 * LEVEL;
+    
+    // Perulangan untuk menangani multi-level up
+    while (XP >= exp_needed) {
+        LEVEL++;
+        // Kurangi EXP yang dibutuhkan
+        XP -= exp_needed; 
+        
+        // Peningkatan Stat (Anda bisa atur sesuai keinginan)
+        HP += 10; // +10 HP
+        ATK += 2; // +2 ATK
+        DEF += 1; // +1 DEF
+
+        printf("\n***********************************\n");
+        printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", LEVEL);
+        printf("Stat bertambah: HP +10, ATK +2, DEF +1.\n");
+        printf("***********************************\n");
+        
+        // Hitung ulang EXP yang dibutuhkan untuk level berikutnya
+        exp_needed = 100 * LEVEL;
+    }
+}
 
 //=====================================================
 void bersihkanString(char *str) {
@@ -198,16 +282,22 @@ void lakukan_pertarungan(struct Monster musuh) {
 
         // --- 3. Cek Kemenangan dan Giliran Musuh ---
         
+      // --- 3. Cek Kemenangan dan Giliran Musuh ---
+        
         if (musuh_ptr->healthPoint <= 0) {
             printf("\n!!! %s Tumbang! Anda menang!\n", musuh_ptr->nama);
-
+            
+            // Hadiah (GOLD dan XP)
             GOLD += musuh_ptr->goldDrop;
             XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
+            
+            check_for_level_up();
+            save_game_data(); 
 
-            return; 
-        }
-        
+            return; // KELUAR dari lakukan_pertarungan()
+        } // <--- PASTIKAN BRACE INI ADA
+
         // Hanya jika Player mengambil aksi yang valid (turn_taken == 1)
         if (turn_taken) {
             monster_turn(musuh_ptr);
@@ -216,10 +306,11 @@ void lakukan_pertarungan(struct Monster musuh) {
         if (HP <= 0) {
             printf("\n!!! Anda dikalahkan oleh %s. GAME OVER.\n", musuh_ptr->nama);
             // Tambahkan logika Game Over di sini
+            // Sebaiknya panggil save_game_data() di sini jika Anda ingin menyimpan status (HP=0)
             return;
         }
-    }
-}
+    } // Akhir dari while loop pertarungan
+} // Akhir dari fungsi l
 
 void tambahkan_item_ke_bag() {
     printf("Item Koin Emas ditambahkan ke tas.\n");
@@ -290,10 +381,6 @@ void explore(){
 
 void bag(){
     printf("bag\n");
-}
-
-void upgrade(){
-    printf("upgrade\n");
 }
 
 
@@ -443,13 +530,70 @@ void use_equipment() {
     }
 }
 
+//===================LOGIN System
+void login_system() {
+    char username[MAX_USERNAME];
+    char choice[MAX_INPUT];
+    FILE *file = NULL;
+
+    printf("--- SISTEM LOGIN ---\n");
+    printf("Pilih: [LOGIN] atau [REGISTER] (atau QUIT): ");
+
+    if (fgets(choice, MAX_INPUT, stdin) == NULL) return;
+    bersihkanString(choice);
+
+    if (strcmp(choice, "QUIT") == 0 || strcmp(choice, "quit") == 0) {
+        printf("Terima kasih, sampai jumpa!\n");
+        exit(0); // Keluar dari program
+    }
+
+    printf("Masukkan Username: ");
+    if (fgets(username, MAX_USERNAME, stdin) == NULL) {
+        printf("Input gagal.\n");
+        return;
+    }
+    bersihkanString(username);
+
+    // 1. OPSI REGISTER
+    if (strcmp(choice, "REGISTER") == 0 || strcmp(choice, "register") == 0) {
+        // ... (Cek akun sudah ada) ...
+        
+        // Buat file baru (mode 'w' untuk tulis)
+        file = fopen(username, "w");
+        // ... (Cek error file) ...
+        fclose(file); // Tutup file 'w' yang baru dibuat
+
+        // Set stat awal dan simpan ke file baru
+        HP = 10; ATK = 2; DEF = 0; LEVEL = 1; XP = 0; GOLD = 0;
+        strcpy(CURRENT_USERNAME, username);
+        save_game_data(); // Panggil save untuk menulis stat awal
+        
+        printf("--- Registrasi Sukses! Akun %s dibuat. Silakan LOGIN untuk bermain. ---\n", username);
+        login_system();
+        return;
+    } 
+    
+    // 2. OPSI LOGIN
+    else if (strcmp(choice, "LOGIN") == 0 || strcmp(choice, "login") == 0) {
+        
+        // ... (Cek file exist) ...
+        
+        printf("--- Login Sukses! Selamat datang, %s. ---\n", username);
+        fclose(file);
+        
+        // Set username aktif dan muat data dari file
+        strcpy(CURRENT_USERNAME, username);
+        load_game_data(CURRENT_USERNAME); 
+        
+        return; // Keluar dari login_system, lanjut ke main game
+    } 
+}
 
 //==========================================Game Start>>>
 void help(){
     printf("\n--- DAFTAR PERINTAH ---\n");
     printf("explore\n");
     printf("bag\n");
-    printf("upgrade\n");
     printf("use_equipment\n");
     printf("use_skill\n");
     printf("quit\n");
@@ -479,10 +623,7 @@ void main_loop(){
         } 
         else if (strcmp(aksiPengguna, "bag") == 0) {
             bag();
-        } 
-        else if (strcmp(aksiPengguna, "upgrade_(item)") == 0) {
-            upgrade();
-        } 
+        }  
         else if (strcmp(aksiPengguna, "use_equipment") == 0) {
             use_equipment(); 
         }
@@ -492,10 +633,11 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "explore") == 0) {
             explore(); 
         } 
-        else if (strcmp(aksiPengguna, "quit") == 0) {
-              printf("Selamat Tinggal!\n");
-                game_running = 0; 
-        } 
+        else if (strcmp(aksiPengguna, "QUIT") == 0 || strcmp(aksiPengguna, "quit") == 0) {
+            save_game_data(); // Simpan data sebelum keluar
+            printf("Menyimpan dan keluar. Sampai jumpa!\n");
+            return; // Keluar dari main_loop
+        }
         else {
             printf("\n!!! Pilihan aksi tidak valid: %s\n", aksiPengguna);
         }
@@ -506,8 +648,16 @@ void main_loop(){
 
 int main()
 {
+    // INITIALISASI RANDOM SEED
+    srand(time(NULL)); 
+    
+    // PANGGIL SISTEM LOGIN SEBELUM START GAME
+    login_system();
+    
     start_game();
-    main_loop();
+    
+    // Panggil loop utama game
+    main_loop(); 
 
     return 0;
 }
