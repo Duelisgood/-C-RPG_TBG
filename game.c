@@ -2,34 +2,33 @@
 #include <string.h>
 #include <stdlib.h> 
 #include <time.h>   
-
 #include "game_data.h"
 #define MAX_INPUT 50
-
 #define MAX_USERNAME 50
 
+// game.c (Definisi instance Player global)
+struct Player mainPlayer = {
+    .username = "",
+    .HP = 10,
+    .ATK = 2,
+    .DEF = 0,
+    .LEVEL = 1,
+    .XP = 0,
+    .GOLD = 0,
+    .equipped_weapon_id = 0,
+    .bonus_atk = 0,
+    .skill_1_cd = 0,
+    .skill_2_cd = 0,
+    .active_skill_1_index = 0,
+    .active_skill_2_index = 1,
+    .inventory_count = 0 
+    
+};
 
+struct Item get_item_by_id(int id);
+void tambahkan_item_ke_bag(int item_id_baru, int jumlah);
+void save_game_data();
 
-//=====================================player stats>>>
-    char CURRENT_USERNAME[MAX_USERNAME] = ""; 
-    int HP = 10;
-    int ATK = 2;
-    int DEF = 0;
-    int LEVEL = 1;
-    int XP = 0;
-    int GOLD = 0;
-
-//-------------equipment
-
-int EQUIPPED_WEAPON_ID = 0; 
-int BONUS_ATK = 0;   
-
-//------------------------Skill CD>>
-int SKILL_1_CD = 0; 
-int SKILL_2_CD = 0; 
-
-int ACTIVE_SKILL_1_INDEX = 0; 
-int ACTIVE_SKILL_2_INDEX = 1;
 
 //=====Game Save
 void save_game_data();
@@ -37,28 +36,28 @@ void load_game_data(const char *username);
 void check_for_level_up();
 
 void save_game_data() {
-    if (strcmp(CURRENT_USERNAME, "") == 0) {
+    if (strcmp(mainPlayer.username, "") == 0) {
         // Hanya simpan jika ada pemain yang login
         return; 
     }
 
-    FILE *file = fopen(CURRENT_USERNAME, "w");
+    FILE *file = fopen(mainPlayer.username, "w");
     if (file == NULL) {
-        printf("ERROR: Gagal menyimpan data ke file %s. Periksa izin folder.\n", CURRENT_USERNAME);
+        printf("ERROR: Gagal menyimpan data ke file %s. Periksa izin folder.\n", mainPlayer.username);
         return;
     }
 
     // Tulis semua stat Player ke file
-    fprintf(file, "HP=%d\n", HP);
-    fprintf(file, "ATK=%d\n", ATK);
-    fprintf(file, "DEF=%d\n", DEF);
-    fprintf(file, "LEVEL=%d\n", LEVEL);
-    fprintf(file, "XP=%d\n", XP);
-    fprintf(file, "GOLD=%d\n", GOLD);
+    fprintf(file, "HP=%d\n", mainPlayer.HP);
+    fprintf(file, "ATK=%d\n", mainPlayer.ATK);
+    fprintf(file, "DEF=%d\n", mainPlayer.DEF);
+    fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
+    fprintf(file, "XP=%d\n", mainPlayer.XP);
+    fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
     // Tambahkan stat lain di sini jika ada (misal: EQUIPPED_WEAPON_ID)
 
     fclose(file);
-    printf("[Data berhasil disimpan ke %s]\n", CURRENT_USERNAME);
+    printf("[Data berhasil disimpan ke %s]\n", mainPlayer.username);
 }
 
 void load_game_data(const char *username) {
@@ -73,40 +72,40 @@ void load_game_data(const char *username) {
 
     // Baca setiap baris data dalam format KEY=VALUE
     while (fscanf(file, "%19[^=]=%d\n", key, &value) == 2) {
-        if (strcmp(key, "HP") == 0) HP = value;
-        else if (strcmp(key, "ATK") == 0) ATK = value;
-        else if (strcmp(key, "DEF") == 0) DEF = value;
-        else if (strcmp(key, "LEVEL") == 0) LEVEL = value;
-        else if (strcmp(key, "XP") == 0) XP = value;
-        else if (strcmp(key, "GOLD") == 0) GOLD = value;
+        if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
+        else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
+        else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
+        else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
+        else if (strcmp(key, "XP") == 0) mainPlayer.XP = value;
+        else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
         // Tambahkan else if untuk stat lain di sini
     }
 
     fclose(file);
-    printf("Data %s dimuat. Level %d | HP %d | ATK %d.\n", username, LEVEL, HP, ATK);
+    printf("Data %s dimuat. Level %d | HP %d | ATK %d.\n", username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK);
 }
 
 void check_for_level_up() {
-    int exp_needed = 100 * LEVEL;
+    int exp_needed = 100 * mainPlayer.LEVEL;
     
     // Perulangan untuk menangani multi-level up
-    while (XP >= exp_needed) {
-        LEVEL++;
+    while (mainPlayer.XP >= exp_needed) {
+        mainPlayer.LEVEL++;
         // Kurangi EXP yang dibutuhkan
-        XP -= exp_needed; 
+        mainPlayer.XP -= exp_needed; 
         
         // Peningkatan Stat (Anda bisa atur sesuai keinginan)
-        HP += 10; // +10 HP
-        ATK += 2; // +2 ATK
-        DEF += 1; // +1 DEF
+        mainPlayer.HP += 10; // +10 HP
+        mainPlayer.ATK += 2; // +2 ATK
+        mainPlayer.DEF += 1; // +1 DEF
 
         printf("\n***********************************\n");
-        printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", LEVEL);
+        printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", mainPlayer.LEVEL);
         printf("Stat bertambah: HP +10, ATK +2, DEF +1.\n");
         printf("***********************************\n");
         
         // Hitung ulang EXP yang dibutuhkan untuk level berikutnya
-        exp_needed = 100 * LEVEL;
+        exp_needed = 100 * mainPlayer.LEVEL;
     }
 }
 
@@ -144,7 +143,9 @@ void bacaInput(char *input) {
     }
 }
 
-  //===================================Fight and Explore>>>>>  
+  //===================================Fight and Explore>>>>> 
+  
+
 struct Monster get_random_monster() {
     if (JUMLAH_MONSTER == 0) {
         struct Monster default_m = {
@@ -171,10 +172,10 @@ void monster_turn(struct Monster *musuh) {
     printf("\n--- Giliran %s ---\n", musuh->nama);
 
     if (aksi_monster < 50) { // 50% peluang Attack (0 - 49)
-        int damage = musuh->attackPower - DEF;
+        int damage = musuh->attackPower - mainPlayer.DEF;
         if (damage < 0) damage = 0;
 
-        HP -= damage;
+        mainPlayer.HP -= damage;
         printf("%s menyerang dengan serangan dasar! Anda menerima %d damage.\n", musuh->nama, damage);
     } 
     else if (aksi_monster < 75) { // 25% peluang Heal (50 - 74)
@@ -186,16 +187,16 @@ void monster_turn(struct Monster *musuh) {
     }
     else { // 25% peluang Skill (75 - 99)
         int skill_damage = musuh->attackPower + musuh->skillPower;
-        int damage = skill_damage - DEF;
+        int damage = skill_damage - mainPlayer.DEF;
         if (damage < 0) damage = 0;
         
-        HP -= damage;
+        mainPlayer.HP -= damage;
         printf("%s menggunakan **SKILL KHUSUS** dan menyerang Anda! Anda menerima %d damage.\n", musuh->nama, damage);
     }
     
     // Pastikan HP Player tidak negatif
-    if (HP < 0) {
-        HP = 0;
+    if (mainPlayer.HP < 0) {
+        mainPlayer.HP = 0;
     }
 }
 
@@ -204,24 +205,24 @@ void lakukan_pertarungan(struct Monster musuh) {
     char input[MAX_INPUT];
     struct Monster *musuh_ptr = &musuh; 
 
-    struct Skill skill1_data = daftarSkill[ACTIVE_SKILL_1_INDEX]; 
-    struct Skill skill2_data = daftarSkill[ACTIVE_SKILL_2_INDEX];
+    struct Skill skill1_data = daftarSkill[mainPlayer.active_skill_1_index]; 
+    struct Skill skill2_data = daftarSkill[mainPlayer.active_skill_2_index];
 
     
     printf("\n--> PERTARUNGAN DIMULAI dengan %s! (HP: %d)\n", musuh.nama, musuh.healthPoint);
 
-    while (HP > 0 && musuh_ptr->healthPoint > 0) {
+    while (mainPlayer.HP > 0 && musuh_ptr->healthPoint > 0) {
         
         // --- 1. PENGURANGAN COOLDOWN ---
-        if (SKILL_1_CD > 0) SKILL_1_CD--;
-        if (SKILL_2_CD > 0) SKILL_2_CD--;
+        if (mainPlayer.skill_1_cd > 0) mainPlayer.skill_1_cd--;
+        if (mainPlayer.skill_2_cd > 0) mainPlayer.skill_2_cd--;
 
         // Tampilkan Status
         printf("\n== Status ==\n");
-        printf("Player HP: %d | %s HP: %d\n", HP, musuh_ptr->nama, musuh_ptr->healthPoint);
+        printf("Player HP: %d | %s HP: %d\n", mainPlayer.HP, musuh_ptr->nama, musuh_ptr->healthPoint);
 
         printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s) (CD: %d) | [SKILL 2] (%s) (CD: %d) | [KABUR]\n",
-            skill1_data.nama, SKILL_1_CD, skill2_data.nama, SKILL_2_CD);
+            skill1_data.nama, mainPlayer.skill_1_cd, skill2_data.nama, mainPlayer.skill_2_cd);
         
         // --- 2. GILIRAN PLAYER ---
         if (fgets(input, MAX_INPUT, stdin) == NULL) continue;
@@ -230,42 +231,42 @@ void lakukan_pertarungan(struct Monster musuh) {
         int turn_taken = 0;
 
         if (strcmp(input, "ATTACK") == 0) {
-            musuh_ptr->healthPoint -= ATK;
-            printf("Anda menyerang %s dan memberikan %d damage!\n", musuh_ptr->nama, ATK);
+            musuh_ptr->healthPoint -= mainPlayer.ATK;
+            printf("Anda menyerang %s dan memberikan %d damage!\n", musuh_ptr->nama, mainPlayer.ATK);
             turn_taken = 1;
         } 
         else if (strcmp(input, "SKILL 1") == 0) {
-            if (SKILL_1_CD > 0) {
-                printf("Skill 1 (%s) sedang cooldown (%d turn tersisa).\n", skill1_data.nama, SKILL_1_CD);
+            if (mainPlayer.skill_1_cd > 0) {
+                printf("Skill 1 (%s) sedang cooldown (%d turn tersisa).\n", skill1_data.nama, mainPlayer.skill_1_cd);
                 continue; // Ulangi giliran Player
             }
             
                 if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
-                    HP += skill1_data.effect_value;
+                mainPlayer.HP += skill1_data.effect_value;
                 } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
-                    musuh_ptr->healthPoint -= (ATK + skill1_data.effect_value);
+                    musuh_ptr->healthPoint -= (mainPlayer.ATK + skill1_data.effect_value);
                 }
 
                 printf("Anda menggunakan %s!\n", skill1_data.nama);
-                SKILL_1_CD = skill1_data.cooldown_max; 
+                mainPlayer.skill_1_cd = skill1_data.cooldown_max; 
                 turn_taken = 1;
             } 
 
         else if (strcmp(input, "SKILL 2") == 0) {
-            if (SKILL_2_CD > 0) {
-                printf("Skill 2 (%s) sedang cooldown (%d turn tersisa).\n", skill2_data.nama, SKILL_2_CD);
+            if (mainPlayer.skill_2_cd > 0) {
+                printf("Skill 2 (%s) sedang cooldown (%d turn tersisa).\n", skill2_data.nama, mainPlayer.skill_2_cd);
                 continue; // Ulangi giliran Player
             }
             
              
                 if (strcmp(skill2_data.effect_type, "HEAL") == 0) { 
-                    HP += skill2_data.effect_value;
+                    mainPlayer.HP += skill2_data.effect_value;
                 } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
-                    musuh_ptr->healthPoint -= (ATK + skill2_data.effect_value);
+                    musuh_ptr->healthPoint -= (mainPlayer.ATK + skill2_data.effect_value);
                 }
             
                 printf("Anda menggunakan %s!\n", skill2_data.nama);
-                SKILL_2_CD = skill2_data.cooldown_max; 
+                mainPlayer.skill_2_cd = skill2_data.cooldown_max; 
                 turn_taken = 1; // 
             // -------------------------
         }
@@ -288,8 +289,8 @@ void lakukan_pertarungan(struct Monster musuh) {
             printf("\n!!! %s Tumbang! Anda menang!\n", musuh_ptr->nama);
             
             // Hadiah (GOLD dan XP)
-            GOLD += musuh_ptr->goldDrop;
-            XP += musuh_ptr->expDrop;
+            mainPlayer.GOLD += musuh_ptr->goldDrop;
+            mainPlayer.XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
             
             check_for_level_up();
@@ -303,7 +304,7 @@ void lakukan_pertarungan(struct Monster musuh) {
             monster_turn(musuh_ptr);
         }
 
-        if (HP <= 0) {
+        if (mainPlayer.HP <= 0) {
             printf("\n!!! Anda dikalahkan oleh %s. GAME OVER.\n", musuh_ptr->nama);
             // Tambahkan logika Game Over di sini
             // Sebaiknya panggil save_game_data() di sini jika Anda ingin menyimpan status (HP=0)
@@ -312,8 +313,30 @@ void lakukan_pertarungan(struct Monster musuh) {
     } // Akhir dari while loop pertarungan
 } // Akhir dari fungsi l
 
-void tambahkan_item_ke_bag() {
-    printf("Item Koin Emas ditambahkan ke tas.\n");
+// Fungsi untuk menambah Item (Contoh: Item ID 103 = Ramuan Kecil)
+void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
+    // 1. Cek apakah item sudah ada di Inventory
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        if (mainPlayer.inventory[i].itemID == item_id_baru) {
+            mainPlayer.inventory[i].quantity += jumlah;
+            struct Item item = get_item_by_id(item_id_baru);
+            printf("\n%s bertambah menjadi %d.\n", item.nama, mainPlayer.inventory[i].quantity);
+            return;
+        }
+    }
+
+    // 2. Jika item belum ada, cari slot kosong
+    if (mainPlayer.inventory_count < MAX_INVENTORY_SLOTS) {
+        int new_index = mainPlayer.inventory_count;
+        mainPlayer.inventory[new_index].itemID = item_id_baru;
+        mainPlayer.inventory[new_index].quantity = jumlah;
+        mainPlayer.inventory_count++;
+        
+        struct Item item = get_item_by_id(item_id_baru);
+        printf("\nItem baru ditemukan: %s x%d!\n", item.nama, jumlah);
+    } else {
+        printf("\nTas penuh! Item tidak bisa diambil.\n");
+    }
 }
 
 void kembali_ke_main() {
@@ -369,8 +392,21 @@ void explore(){
     else if (Nomor_Acak >= 61 && Nomor_Acak <= 85) {
         // Item: 61-85 (25%)
         printf("Anda menemukan sebuah item tersembunyi!\n");
-        tambahkan_item_ke_bag();
-    } 
+
+        // ----------------------------------------------------
+        // >>> LOGIKA MENGAMBIL ITEM RANDOM <<<
+        
+        // 1. Dapatkan indeks acak dari 0 hingga JUMLAH_ITEM - 1
+        int random_index = rand() % JUMLAH_ITEM;
+        
+        // 2. Ambil ID dari item pada indeks acak tersebut
+        int random_item_id = daftarItem[random_index].itemID;
+        
+        // 3. Tambahkan item ke bag (misal: 1 buah)
+        tambahkan_item_ke_bag(random_item_id, 1);
+        
+        // ----------------------------------------------------
+    }  
     else { 
         // Kosong: 86-99 (14%)
         printf("Anda menjelajah, tetapi tidak terjadi apa-apa.\n");
@@ -378,9 +414,37 @@ void explore(){
 }
 
 
+//=========================== inventory backpack>>>>
+// game.c
+
+
 
 void bag(){
-    printf("bag\n");
+    printf("\n--- BAG & STATS ---\n");
+    printf("Username: %s\n", mainPlayer.username);
+    printf("Level: %d | XP: %d\n", mainPlayer.LEVEL, mainPlayer.XP);
+    printf("HP: %d | ATK: %d | DEF: %d | GOLD: %d\n", mainPlayer.HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.GOLD);
+    
+    // Tampilkan Equipment
+    struct Item weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
+    printf("Weapon: %s (Bonus ATK: %d)\n", weapon.nama, mainPlayer.bonus_atk);
+    
+    printf("\n--- INVENTORY ---\n");
+    if (mainPlayer.inventory_count == 0) {
+        printf("Tas kosong.\n");
+        return;
+    }
+
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        int item_id = mainPlayer.inventory[i].itemID;
+        int qty = mainPlayer.inventory[i].quantity;
+        
+        // Dapatkan detail Item dari daftarItem global
+        struct Item item_detail = get_item_by_id(item_id); 
+        
+        printf("[%d] ID %d | Nama: %s (x%d) | Tipe: %s\n", 
+               i + 1, item_id, item_detail.nama, qty, item_detail.type);
+    }
 }
 
 
@@ -438,16 +502,16 @@ void use_skill() {
     
     // Terapkan Perubahan
     if (skill_slot == 1) {
-        ACTIVE_SKILL_1_INDEX = skill_index;
+        mainPlayer.active_skill_1_index = skill_index;
         printf("Slot 1 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
     } else { // skill_slot == 2
-        ACTIVE_SKILL_2_INDEX = skill_index;
+       mainPlayer.active_skill_2_index = skill_index;
         printf("Slot 2 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
     }
     
     // Reset Cooldown skill yang baru dipasang
-    if (skill_slot == 1) SKILL_1_CD = 0;
-    if (skill_slot == 2) SKILL_2_CD = 0;
+    if (skill_slot == 1) mainPlayer.skill_1_cd = 0;
+    if (skill_slot == 2) mainPlayer.skill_2_cd = 0;
 }
 
 struct Item get_item_by_id(int id) {
@@ -466,17 +530,13 @@ void apply_stat_boosts() {
     // Dalam game yang kompleks, ini akan dipanggil setelah equip/unequip
 
     // Reset ATK dasar
-    ATK = 2; // Asumsi ATK dasar Player adalah 2
+    mainPlayer.ATK = 2; // Asumsi ATK dasar Player adalah 2
 
     // Tambahkan BONUS_ATK
-    ATK += BONUS_ATK;
+    mainPlayer.ATK += mainPlayer.bonus_atk;
 }
 
-// Deklarasi extern (jika belum ada)
-extern int ATK;
-extern int BONUS_ATK;
-extern int EQUIPPED_WEAPON_ID;
-// ... (Deklarasi fungsi get_item_by_id dan apply_stat_boosts) ...
+
 
 void use_equipment() {
     int input_id;
@@ -502,20 +562,20 @@ void use_equipment() {
     if (strcmp(item_pilihan.type, "WEAPON") == 0) {
         
         // Cek Weapon lama dan lepaskan stat-nya
-        if (EQUIPPED_WEAPON_ID != 0) {
-            struct Item old_weapon = get_item_by_id(EQUIPPED_WEAPON_ID);
-            BONUS_ATK -= old_weapon.stat_boost;
+        if (mainPlayer.equipped_weapon_id != 0) {
+            struct Item old_weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
+            mainPlayer.bonus_atk -= old_weapon.stat_boost;
             printf("Weapon lama (%s) dilepas.\n", old_weapon.nama);
         }
 
         // Equip Weapon baru
-        EQUIPPED_WEAPON_ID = item_pilihan.itemID;
-        BONUS_ATK += item_pilihan.stat_boost;
+        mainPlayer.equipped_weapon_id = item_pilihan.itemID;
+        mainPlayer.bonus_atk += item_pilihan.stat_boost;
         apply_stat_boosts(); 
 
         printf("Berhasil melengkapi %s! Bonus ATK: +%d.\n", 
                item_pilihan.nama, item_pilihan.stat_boost);
-        printf("ATK total Anda sekarang: %d.\n", ATK);
+        printf("ATK total Anda sekarang: %d.\n", mainPlayer.ATK);
 
     } 
     // LOGIKA LAIN (ARMOR, dll.)
@@ -563,10 +623,20 @@ void login_system() {
         // ... (Cek error file) ...
         fclose(file); // Tutup file 'w' yang baru dibuat
 
-        // Set stat awal dan simpan ke file baru
-        HP = 10; ATK = 2; DEF = 0; LEVEL = 1; XP = 0; GOLD = 0;
-        strcpy(CURRENT_USERNAME, username);
-        save_game_data(); // Panggil save untuk menulis stat awal
+          // Set stat awal dan simpan ke file baru
+        mainPlayer.HP = 10; 
+        mainPlayer.ATK = 2; 
+        // ... (Set stat dasar lainnya) ...
+        
+        // --- INISIALISASI INVENTORY ---
+        // Tambahkan Pedang Kayu (ID 101) x1
+        tambahkan_item_ke_bag(101, 1); 
+        // Tambahkan Ramuan Kecil (ID 103) x5
+        tambahkan_item_ke_bag(103, 5); 
+        // -----------------------------
+
+        strcpy(mainPlayer.username, username);
+        save_game_data(); 
         
         printf("--- Registrasi Sukses! Akun %s dibuat. Silakan LOGIN untuk bermain. ---\n", username);
         login_system();
@@ -582,8 +652,8 @@ void login_system() {
         fclose(file);
         
         // Set username aktif dan muat data dari file
-        strcpy(CURRENT_USERNAME, username);
-        load_game_data(CURRENT_USERNAME); 
+        strcpy(mainPlayer.username, username);
+        load_game_data(mainPlayer.username); 
         
         return; // Keluar dari login_system, lanjut ke main game
     } 

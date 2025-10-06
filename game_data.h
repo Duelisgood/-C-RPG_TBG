@@ -1,9 +1,7 @@
-// game_data.h
-
 #ifndef GAME_DATA_H
 #define GAME_DATA_H
-
 #define MAX_NAMA 50
+#define MAX_INVENTORY_SLOTS 50
 
 // Definisi Struktur untuk Item
 struct Item {
@@ -35,6 +33,37 @@ struct Skill {
     int effect_value;       // Nilai efek (HP atau Damage tambahan)
 };
 
+struct InventorySlot {
+    int itemID;     // ID item (untuk mencari di daftarItem global)
+    int quantity;   // Jumlah item yang dimiliki
+};
+
+struct Player {
+    char username[50];
+    int HP;
+    int ATK;
+    int DEF;
+    int LEVEL;
+    int XP;
+    int GOLD;
+
+    int equipped_weapon_id;
+    int bonus_atk;
+
+    // Skill Cooldown (Pindahkan dari variabel global)
+    int skill_1_cd;
+    int skill_2_cd;
+    int active_skill_1_index;
+    int active_skill_2_index;
+
+    // Inventory Array
+    struct InventorySlot inventory[MAX_INVENTORY_SLOTS];
+    int inventory_count; // Jumlah slot yang terisi (bukan jumlah item)
+};
+
+
+// [Deklarasi Global]
+extern struct Player mainPlayer; 
 
 extern struct Skill daftarSkill[];
 extern const int JUMLAH_SKILL;
