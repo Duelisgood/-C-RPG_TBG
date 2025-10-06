@@ -65,7 +65,16 @@ void bacaInput(char *input) {
   //===================================Fight and Explore>>>>>  
 struct Monster get_random_monster() {
     if (JUMLAH_MONSTER == 0) {
-        struct Monster default_m = {999, "Error Monster", 1, 1};
+        struct Monster default_m = {
+            .monsterID = 999,
+            .nama = "Error Monster", 
+            .healthPoint = 1,
+            .attackPower = 1,
+            .rarity = 0,          
+            .skillPower = 0,      
+            .goldDrop = 0,        
+            .expDrop = 0          
+        };
         return default_m;
     }
     
@@ -79,20 +88,39 @@ void monster_turn(struct Monster *musuh) {
 
     printf("\n--- Giliran %s ---\n", musuh->nama);
 
-    if (aksi_monster < 70) { // 70% peluang Attack
+    if (aksi_monster < 50) { // 50% peluang Attack (0 - 49)
+        // Aksi 1: SERANGAN DASAR
         int damage = musuh->attackPower - DEF;
         if (damage < 0) damage = 0;
 
         HP -= damage;
-        printf("%s menyerang! Anda menerima %d damage.\n", musuh->nama, damage);
-    } else { // 30% peluang Heal
+        printf("%s menyerang dengan serangan dasar! Anda menerima %d damage.\n", musuh->nama, damage);
+    } 
+    else if (aksi_monster < 75) { // 25% peluang Heal (50 - 74)
+        // Aksi 2: HEAL
         int heal_amount = musuh->healthPoint * 0.10; // Heal 10% dari HP
         if (heal_amount < 1) heal_amount = 1;
 
         musuh->healthPoint += heal_amount;
         printf("%s melakukan penyembuhan dan memulihkan %d HP.\n", musuh->nama, heal_amount);
     }
+    else { // 25% peluang Skill (75 - 99)
+        // Aksi 3: SKILL KHUSUS
+        // Gunakan stat skillPower monster untuk damage tambahan
+        int skill_damage = musuh->attackPower + musuh->skillPower;
+        int damage = skill_damage - DEF;
+        if (damage < 0) damage = 0;
+        
+        HP -= damage;
+        printf("%s menggunakan **SKILL KHUSUS** dan menyerang Anda! Anda menerima %d damage.\n", musuh->nama, damage);
+    }
+    
+    // Pastikan HP Player tidak negatif
+    if (HP < 0) {
+        HP = 0;
+    }
 }
+
 
 void lakukan_pertarungan(struct Monster musuh) {
 
@@ -150,17 +178,25 @@ void lakukan_pertarungan(struct Monster musuh) {
                 printf("Skill 2 (%s) sedang cooldown (%d turn tersisa).\n", skill2_data.nama, SKILL_2_CD);
                 continue; // Ulangi giliran Player
             }
-                if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
-                    HP += skill1_data.effect_value;
-                } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
-                    musuh_ptr->healthPoint -= (ATK + skill1_data.effect_value);
+            
+             
+                if (strcmp(skill2_data.effect_type, "HEAL") == 0) { 
+                    HP += skill2_data.effect_value;
+                } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
+                    musuh_ptr->healthPoint -= (ATK + skill2_data.effect_value);
                 }
+            
+                printf("Anda menggunakan %s!\n", skill2_data.nama);
+                SKILL_2_CD = skill2_data.cooldown_max; 
+                turn_taken = 1; // 
+            // -------------------------
+        }
+
+         else if (strcmp(input, "KABUR") == 0) {
+                printf("Anda berhasil kabur dari %s dan kembali ke menu utama.\n", musuh_ptr->nama);
+                return; 
             }
 
-        else if (strcmp(input, "KABUR") == 0) {
-
-            return; 
-        }
         else {
             printf("Perintah tidak dikenal. Coba lagi.\n");
             continue; // Ulangi giliran Player
@@ -170,6 +206,11 @@ void lakukan_pertarungan(struct Monster musuh) {
         
         if (musuh_ptr->healthPoint <= 0) {
             printf("\n!!! %s Tumbang! Anda menang!\n", musuh_ptr->nama);
+
+            GOLD += musuh_ptr->goldDrop;
+            XP += musuh_ptr->expDrop;
+            printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
+
             return; 
         }
         
@@ -186,15 +227,12 @@ void lakukan_pertarungan(struct Monster musuh) {
     }
 }
 
-void kembali_ke_main() {
-    printf("\nAnda berhasil kabur dari pertarungan!\n");
-}
-
-
-
-
 void tambahkan_item_ke_bag() {
     printf("Item Koin Emas ditambahkan ke tas.\n");
+}
+
+void kembali_ke_main() {
+    printf("\nAnda berhasil kabur dari pertarungan!\n");
 }
 
 void start_fight(struct Monster musuh) {

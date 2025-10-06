@@ -21,7 +21,12 @@ struct Monster {
     char nama[MAX_NAMA];
     int healthPoint;
     int attackPower;
+    int rarity; 
+    int skillPower;
+    int goldDrop;           
+    int expDrop;
 };
+
 struct Skill {
     int skillID;
     char nama[MAX_NAMA];

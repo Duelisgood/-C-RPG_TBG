@@ -11,14 +11,13 @@ struct Item daftarItem[] = {
 
 const int JUMLAH_ITEM = sizeof(daftarItem) / sizeof(daftarItem[0]);
 
-
 //Definisi dan Inisialisasi Daftar Monster
 struct Monster daftarMonster[] = {
-    {.monsterID = 201, .nama = "Goblin", .healthPoint = 10, .attackPower = 1},
-    {.monsterID = 202, .nama = "Orc", .healthPoint = 15, .attackPower = 2},
-    {.monsterID = 203, .nama = "Serigala", .healthPoint = 5, .attackPower = 1}
+   
+    { .monsterID = 201, .nama = "Goblin Kecil", .healthPoint = 10, .attackPower = 2, .rarity = 1, .skillPower = 4, .goldDrop = 5, .expDrop = 10 },
+    { .monsterID = 202, .nama = "Orc ", .healthPoint = 15, .attackPower = 5, .rarity = 2, .skillPower = 5, .goldDrop = 15, .expDrop = 30 },
+    { .monsterID = 203, .nama = "Raja Serigala", .healthPoint = 150, .attackPower = 25, .rarity = 4, .skillPower = 10,.goldDrop = 50, .expDrop = 100 }
 };
-
 
 const int JUMLAH_MONSTER = sizeof(daftarMonster) / sizeof(daftarMonster[0]);
 
