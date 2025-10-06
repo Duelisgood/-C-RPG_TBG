@@ -10,6 +10,9 @@ struct Item {
     int itemID;
     char nama[MAX_NAMA];
     int harga;
+    int rarity; 
+    char type[15];
+    int stat_boost; 
 };
 
 // Definisi Struktur untuk Monster

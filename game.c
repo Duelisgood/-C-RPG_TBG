@@ -14,9 +14,18 @@
     int XP = 0;
     int GOLD = 0;
 
-//=================================Skill CD>>
+//-------------equipment
+
+int EQUIPPED_WEAPON_ID = 0; 
+int BONUS_ATK = 0;   
+
+//------------------------Skill CD>>
 int SKILL_1_CD = 0; 
 int SKILL_2_CD = 0; 
+
+// ================Deklarasi Lainnya>>>
+// extern struct Item daftarItem[];
+// extern const int JUMLAH_ITEM;
 
 //=====================================================
 void bersihkanString(char *str) {
@@ -255,8 +264,87 @@ void upgrade(){
     printf("upgrade\n");
 }
 
-void use_item(){
-    printf("use_(item)\n");
+
+//================Item and use Item
+struct Item get_item_by_id(int id) {
+    for (int i = 0; i < JUMLAH_ITEM; i++) {
+        if (daftarItem[i].itemID == id) {
+            return daftarItem[i]; // Item ditemukan
+        }
+    }
+    // Kembalikan item kosong jika tidak ditemukan
+    struct Item empty_item = {0, "None", 0, 0, "NONE", 0}; 
+    return empty_item;
+}
+
+void apply_stat_boosts() {
+    // Fungsi untuk memperbarui stat total Player
+    // Dalam game yang kompleks, ini akan dipanggil setelah equip/unequip
+
+    // Reset ATK dasar
+    ATK = 2; // Asumsi ATK dasar Player adalah 2
+
+    // Tambahkan BONUS_ATK
+    ATK += BONUS_ATK;
+}
+
+void use_item() {
+    int input_id;
+    printf("\n--- GUNAKAN ITEM ---\n");
+    printf("Masukkan ID Item (Contoh: 101 untuk Pedang Kayu): ");
+    
+    // Baca input ID dari user
+    if (scanf("%d", &input_id) != 1) {
+        printf("Input tidak valid. Harap masukkan angka.\n");
+        // Membersihkan buffer input (penting setelah scanf)
+        while (getchar() != '\n'); 
+        return;
+    }
+    // Membersihkan buffer input setelah scanf
+    while (getchar() != '\n'); 
+
+    // Cari item
+    struct Item item_pilihan = get_item_by_id(input_id);
+
+    if (item_pilihan.itemID == 0) {
+        printf("Item dengan ID %d tidak ditemukan.\n", input_id);
+        return;
+    }
+
+    printf("Anda mencoba menggunakan %s (Tipe: %s).\n", 
+           item_pilihan.nama, item_pilihan.type);
+
+    // LOGIKA KHUSUS UNTUK WEAPON (EQUIP)
+    if (strcmp(item_pilihan.type, "WEAPON") == 0) {
+        
+        // 1. Cek apakah ada Weapon yang sudah dilengkapi
+        if (EQUIPPED_WEAPON_ID != 0) {
+            // Unequip Weapon lama
+            struct Item old_weapon = get_item_by_id(EQUIPPED_WEAPON_ID);
+            BONUS_ATK -= old_weapon.stat_boost;
+            printf("Weapon lama (%s) dilepas.\n", old_weapon.nama);
+        }
+
+        // 2. Equip Weapon baru
+        EQUIPPED_WEAPON_ID = item_pilihan.itemID;
+        BONUS_ATK += item_pilihan.stat_boost;
+        
+        // 3. Perbarui stat ATK total Player
+        apply_stat_boosts(); 
+
+        printf("Berhasil melengkapi %s! Bonus ATK: +%d.\n", 
+               item_pilihan.nama, item_pilihan.stat_boost);
+        printf("ATK total Anda sekarang: %d.\n", ATK);
+
+    } 
+    // LOGIKA LAIN (misalnya CONSUMABLE)
+    else if (strcmp(item_pilihan.type, "CONSUMABLE") == 0) {
+        printf("%s digunakan. Anda mendapatkan efek (Logika Consumable belum diimplementasikan).\n", item_pilihan.nama);
+        // Di sini Anda akan mengurangi item dari inventory dan menerapkan efeknya (misal: HP += 10)
+    }
+    else {
+        printf("%s tidak dapat dilengkapi atau digunakan saat ini.\n", item_pilihan.nama);
+    }
 }
 
 
@@ -298,8 +386,8 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "upgrade_(item)") == 0) {
             upgrade();
         }  
-        else if (strcmp(aksiPengguna, "use_(item)") == 0) {
-            use_item();
+        else if (strcmp(aksiPengguna, "use") == 0 || strcmp(aksiPengguna, "use_item") == 0) {
+            use_item(); 
         }   
         else if (strcmp(aksiPengguna, "explore") == 0) {
             explore(); 
@@ -320,8 +408,6 @@ int main()
 {
     start_game();
     main_loop();
-    
-   
 
     return 0;
 }
