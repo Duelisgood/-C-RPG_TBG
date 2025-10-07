@@ -233,6 +233,54 @@ void bacaInput(char *input) {
 
   //==========================================================================================================================================Fight and Explore>>>>> 
   
+// Fungsi untuk menambahkan Skill ID ke daftar yang dimiliki
+void learn_new_skill(int skill_id) {
+    // 1. Cek apakah skill sudah dimiliki
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        if (mainPlayer.owned_skill_ids[i] == skill_id) {
+            printf("\nAnda sudah memiliki skill %s.\n", get_skill_by_id(skill_id).nama);
+            return;
+        }
+    }
+
+    // 2. Tambahkan skill ke slot yang tersedia
+    if (mainPlayer.owned_skill_count < MAX_SKILLS_OWNED) {
+        mainPlayer.owned_skill_ids[mainPlayer.owned_skill_count] = skill_id;
+        mainPlayer.owned_skill_count++;
+        
+        struct Skill s = get_skill_by_id(skill_id);
+        printf("\n*** Selamat! Anda mempelajari skill baru: %s (Rarity %d) ***\n", s.nama, s.rarity);
+    } else {
+        printf("\nSkill pouch penuh! Skill baru tidak dapat dipelajari.\n");
+    }
+}
+
+struct Skill get_random_skill_by_rarity(int required_rarity) {
+    int available_skill_indices[JUMLAH_SKILL];
+    int count = 0;
+
+    // 1. Cari skill yang cocok dengan Rarity
+    for (int i = 0; i < JUMLAH_SKILL; i++) {
+        if (daftarSkill[i].rarity == required_rarity) {
+            available_skill_indices[count] = i; // Simpan indeks yang cocok
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        // Fallback: Jika Rarity yang diminta tidak ada, coba Rarity 1
+        printf("Peringatan: Tidak ada skill Rarity %d yang ditemukan. Mencoba Rarity 1.\n", required_rarity);
+        return get_random_skill_by_rarity(1);
+    }
+    
+    // 2. Pilih indeks acak dari daftar skill yang cocok
+    int random_list_index = rand() % count;
+    int final_skill_index = available_skill_indices[random_list_index];
+    
+    // 3. Kembalikan skill yang dipilih
+    return daftarSkill[final_skill_index];
+}
+
 struct Item get_random_item_by_rarity(int required_rarity) {
     
     // Array sementara untuk menampung indeks item yang cocok
@@ -536,21 +584,33 @@ void explore(){
         start_fight(monster_saat_ini);
     } 
     else if (Nomor_Acak >= 61 && Nomor_Acak <= 85) {
-        // Item: 61-85 (25%)
-        printf("Anda menemukan sebuah item tersembunyi!\n");
+        // Item/Skill Encounter: 61-85 (25%)
+        printf("Anda menemukan sebuah hadiah tersembunyi!\n");
 
-        // BARU: 1. Tentukan Rarity item
-        int item_rarity = get_random_rarity(); 
+        // Tentukan Rarity hadiah
+        int prize_rarity = get_random_rarity(); 
         
-        // BARU: 2. Dapatkan item yang sesuai Rarity
-        struct Item item_ditemukan = get_random_item_by_rarity(item_rarity);
+        // Tentukan Tipe Hadiah: 50% Skill (0-49), 50% Equipment (50-99)
+        int prize_type_roll = rand() % 100;
+
+        if (prize_type_roll < 50) {
+            struct Skill skill_ditemukan = get_random_skill_by_rarity(prize_rarity);
+
+            if (skill_ditemukan.skillID != 0) {
+                learn_new_skill(skill_ditemukan.skillID);
+            } else {
+                 printf("Hadiah skill gagal ditemukan.\n");
+            }
+
+        } else {
         
-        // 3. Tambahkan item ke bag (misal: selalu 1 buah)
-        tambahkan_item_ke_bag(item_ditemukan.itemID, 1);
-        
-        printf("Anda menemukan item Rarity %d: %s.\n", item_rarity, item_ditemukan.nama);
-        
-        // ----------------------------------------------------
+            struct Item item_ditemukan = get_random_item_by_rarity(prize_rarity);
+            
+            // Tambahkan item ke bag (misal: selalu 1 buah)
+            tambahkan_item_ke_bag(item_ditemukan.itemID, 1);
+            
+            printf("Anda menemukan Equipment Rarity %d: %s.\n", prize_rarity, item_ditemukan.nama);
+        }
     }  
     else { 
         // Kosong: 86-99 (14%)
