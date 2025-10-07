@@ -22,14 +22,11 @@ void start_game(){
 
 void main_loop(){
     int game_running = 1;
-
     char aksiPengguna[MAX_INPUT];
-
 
     while (game_running)
     {
         bacaInput(aksiPengguna);
-
         if (strcmp(aksiPengguna, "HELP") == 0) {
             help();
         } 
@@ -46,7 +43,7 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 
-        else if (strcmp(aksiPengguna, "QUIT") == 0 || strcmp(aksiPengguna, "quit") == 0) {
+        else if (strcmp(aksiPengguna, "QUIT") == 0) { // Hapus || strcmp(aksiPengguna, "quit") == 0
             save_game_data(); // Simpan data sebelum keluar
             printf("Menyimpan dan keluar. Sampai jumpa!\n");
             return; // Keluar dari main_loop
