@@ -100,37 +100,33 @@ void load_game_data(const char *username) {
     char key[20];
     int value;
     char line[100];
-    int load_index = 0; // BARU: Indeks untuk mengisi inventory
+    int load_index = 0; // Indeks untuk inventory item
+    
     // Reset inventory sebelum memuat
     mainPlayer.inventory_count = 0; 
-
+    
+    // Pastikan array owned_skill_ids juga di-reset (hanya untuk keamanan)
+    // Walaupun owned_skill_counter=0 sudah cukup
+    
     // LOOP TUNGGAL: Membaca file BARIS DEMI BARIS
     while (fgets(line, sizeof(line), file) != NULL) {
         
-        bersihkanString(line); // Hapus newline
+        bersihkanString(line);
 
-        // 1. MUAT STAT DASAR (Contoh: HP=10)
-        if (strncmp(line, "ITEM=", 5) != 0) { // <--- TAMBAHKAN CHECK INI
-    
-            if (sscanf(line, "%19[^=]=%d", key, &value) == 2) {
-                // ... (Kode muat stat HP, ATK, DEF, LEVEL, XP, GOLD ke mainPlayer.STAT) ...
-                
-                // TIDAK PERLU else if
-                if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
-                else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
-                else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
-                else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
-                else if (strcmp(key, "XP") == 0) mainPlayer.XP = value;
-                else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
-                else if (strcmp(key, "equipped_armor_id") == 0) mainPlayer.equipped_armor_id = value; 
-                else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
-                else if (strcmp(key, "active_skill_1_index") == 0) mainPlayer.active_skill_1_index = value;
-                else if (strcmp(key, "active_skill_2_index") == 0) mainPlayer.active_skill_2_index = value;
-                else if (strcmp(key, "skill_1_cd") == 0) mainPlayer.skill_1_cd = value;
-                else if (strcmp(key, "skill_2_cd") == 0) mainPlayer.skill_2_cd = value;
-                else if (strcmp(key, "OWNED_SKILL_COUNT") == 0) mainPlayer.owned_skill_count = value;
+        // 1. COBA MUAT DATA BACKPACK ITEM (Paling spesifik)
+        if (strncmp(line, "ITEM=", 5) == 0) {
+            int id, qty;
+            if (sscanf(line, "ITEM=%d,%d", &id, &qty) == 2) {
+                if (load_index < MAX_INVENTORY_SLOTS) {
+                    mainPlayer.inventory[load_index].itemID = id;
+                    mainPlayer.inventory[load_index].quantity = qty;
+                    load_index++;
+                }
             }
-            else if (strncmp(line, "SKILL_OWNED_ID=", 15) == 0) {
+        }
+        
+        // 2. COBA MUAT DATA SKILL YANG DIMILIKI (SKILL_OWNED_ID=ID)
+        else if (strncmp(line, "SKILL_OWNED_ID=", 15) == 0) {
             int skill_id;
             if (sscanf(line, "SKILL_OWNED_ID=%d", &skill_id) == 1) {
                 if (owned_skill_counter < MAX_SKILLS_OWNED) {
@@ -139,24 +135,33 @@ void load_game_data(const char *username) {
                 }
             }
         } 
+        
+        // 3. COBA MUAT STAT DASAR (Sisanya, format KEY=VALUE)
+        else if (sscanf(line, "%19[^=]=%d", key, &value) == 2) {
+            
+            if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
+            else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
+            else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
+            else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
+            else if (strcmp(key, "XP") == 0) mainPlayer.XP = value;
+            else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
+            else if (strcmp(key, "equipped_armor_id") == 0) mainPlayer.equipped_armor_id = value; 
+            else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
+            else if (strcmp(key, "active_skill_1_index") == 0) mainPlayer.active_skill_1_index = value;
+            else if (strcmp(key, "active_skill_2_index") == 0) mainPlayer.active_skill_2_index = value;
+            else if (strcmp(key, "skill_1_cd") == 0) mainPlayer.skill_1_cd = value;
+            else if (strcmp(key, "skill_2_cd") == 0) mainPlayer.skill_2_cd = value;
+            else if (strcmp(key, "OWNED_SKILL_COUNT") == 0) mainPlayer.owned_skill_count = value;
         }
         
-        // 2. MUAT DATA BACKPACK (Contoh: ITEM=101,2)
-        else if (strncmp(line, "ITEM=", 5) == 0) {
-            int id, qty;
-            if (sscanf(line, "ITEM=%d,%d", &id, &qty) == 2) {
-                if (load_index < MAX_INVENTORY_SLOTS) {
-                    // Item dimuat ke array inventory milik struct Player
-                    mainPlayer.inventory[load_index].itemID = id;
-                    mainPlayer.inventory[load_index].quantity = qty;
-                    load_index++; // PENTING: Tingkatkan indeks untuk item berikutnya
-                }
-            }
-        }
+        // Baris yang tidak cocok dengan format apapun (misalnya baris kosong atau komentar) diabaikan.
     } // Tutup loop utama while (fgets)
 
     // Tetapkan inventory_count global dari jumlah item yang berhasil dimuat
     mainPlayer.inventory_count = load_index; 
+    
+    // Jumlah skill yang dimiliki harus berdasarkan counter, bukan dari file (jika file rusak)
+    mainPlayer.owned_skill_count = owned_skill_counter; 
     
     fclose(file);
     printf("Data %s dimuat. Level %d | HP %d | ATK %d | Item di tas: %d\n", 
@@ -679,10 +684,11 @@ void change_skill() {
 
     printf("Pilih Slot Aktif yang ingin diganti (1 atau 2): ");
     if (scanf("%d", &active_slot) != 1) {
-        // ... (pembersihan input)
+        while (getchar() != '\n');
         return;
     }
-    
+    while (getchar() != '\n');
+
     if (active_slot != 1 && active_slot != 2) {
         printf("ERROR: Slot aktif harus 1 atau 2.\n");
         return;
@@ -749,9 +755,10 @@ void apply_stat_boosts() {
     // Dalam game yang kompleks, ini akan dipanggil setelah equip/unequip
 
     // Reset ATK dasar
-    mainPlayer.ATK = 2; // Asumsi ATK dasar Player adalah 2
+   int base_atk_from_level = 2 + (mainPlayer.LEVEL - 1) * 2; 
 
     // Tambahkan BONUS_ATK
+    mainPlayer.ATK = base_atk_from_level; 
     mainPlayer.ATK += mainPlayer.bonus_atk;
 }
 
