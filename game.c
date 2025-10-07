@@ -788,6 +788,7 @@ void login_system() {
             return;
         }
         
+        printf("\n");
         printf("--- Login Sukses! Selamat datang, %s. ---\n", username);
         fclose(file);
         
@@ -813,9 +814,12 @@ void help(){
 
 void start_game(){
     //pesan awalan game
-    printf("Welcome To RPG Game \n");
-    printf("-------------------\n");
-    printf("command 'help' to get any command\n");
+   
+    
+    printf("\n        Selamat datang di D U N G E O N  C L I\n");
+    printf("---------------------------------------------------\n");
+    printf("Ketik 'help' untuk melihat semua perintah yang tersedia.\n");
+    printf("---------------------------------------------------\n");
 }
 
 void main_loop(){
