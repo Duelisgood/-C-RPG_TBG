@@ -125,11 +125,39 @@ struct Monster daftarMonster[] = {
 const int JUMLAH_MONSTER = sizeof(daftarMonster) / sizeof(daftarMonster[0]);
 
 struct Skill daftarSkill[] = {
-    {.skillID = 1, .nama = "Minor Heal", .cooldown_max = 2, .effect_type = "HEAL", .effect_value = 5},
-    {.skillID = 2, .nama = "Power Slash", .cooldown_max = 3, .effect_type = "ATTACK", .effect_value = 3},
-    {.skillID = 3, .nama = "Defense Stance", .cooldown_max = 4, .effect_type = "HEAL", .effect_value = 10}, 
-    {.skillID = 4, .nama = "Triple Shot", .cooldown_max = 5, .effect_type = "ATTACK", .effect_value = 8}, 
-    {.skillID = 5, .nama = "Emergency Mend", .cooldown_max = 6, .effect_type = "HEAL", .effect_value = 25}
+// =================================================================
+// ============== RARITY 1 (ID 101 - 105) - DASAR =================
+// =================================================================
+    {.skillID = 101, .nama = "Quick Stab", .cooldown_max = 2, .rarity = 1, .effect_type = "ATTACK", .effect_value = 3},
+    {.skillID = 102, .nama = "Minor Heal", .cooldown_max = 3, .rarity = 1, .effect_type = "HEAL", .effect_value = 5}, // Mirip Minor Heal lama
+    {.skillID = 103, .nama = "Deflect", .cooldown_max = 2, .rarity = 1, .effect_type = "HEAL", .effect_value = 4},
+    
+// =================================================================
+// ============== RARITY 2 (ID 201 - 205) - STANDAR ===============
+// =================================================================
+    {.skillID = 201, .nama = "Power Slash", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 7}, // Mirip Power Slash lama
+    {.skillID = 202, .nama = "First Aid", .cooldown_max = 4, .rarity = 2, .effect_type = "HEAL", .effect_value = 10}, // Mirip Defense Stance lama
+    {.skillID = 203, .nama = "Quick Shot", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 6},
+
+// =================================================================
+// ============== RARITY 3 (ID 301 - 305) - KUAT ==================
+// =================================================================
+    {.skillID = 301, .nama = "Wild Swing", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 15},
+    {.skillID = 302, .nama = "Regenerate", .cooldown_max = 5, .rarity = 3, .effect_type = "HEAL", .effect_value = 18},
+    {.skillID = 303, .nama = "Shadow Strike", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 12},
+
+// =================================================================
+// ============== RARITY 4 (ID 401 - 405) - ELITE =================
+// =================================================================
+    {.skillID = 401, .nama = "Critical Focus", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 25},
+    {.skillID = 402, .nama = "Mass Healing", .cooldown_max = 6, .rarity = 4, .effect_type = "HEAL", .effect_value = 30},
+    {.skillID = 403, .nama = "Triple Shot", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 20}, // Mirip Triple Shot lama
+
+// =================================================================
+// ============== RARITY 5 (ID 501 - 505) - ULTIMATE ==============
+// =================================================================
+    {.skillID = 501, .nama = "Execute", .cooldown_max = 7, .rarity = 5, .effect_type = "ATTACK", .effect_value = 45},
+    {.skillID = 502, .nama = "Emergency Mend", .cooldown_max = 9, .rarity = 5, .effect_type = "HEAL", .effect_value = 50} // Mirip Emergency Mend lama
 };
 
 const int JUMLAH_SKILL = sizeof(daftarSkill) / sizeof(daftarSkill[0]);

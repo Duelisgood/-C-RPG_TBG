@@ -24,7 +24,9 @@ struct Player mainPlayer = {
     .skill_2_cd = 0,
     .active_skill_1_index = 0,
     .active_skill_2_index = 1,
-    .inventory_count = 0 
+    .inventory_count = 0,
+    .owned_skill_ids = {101, 102, 0, 0, 0, 0, 0, 0, 0, 0}, 
+    .owned_skill_count = 2    
 
 };
 
@@ -60,7 +62,20 @@ void save_game_data() {
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
     fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
+    fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
     fprintf(file, "bonus_def=%d\n", mainPlayer.bonus_def);  
+
+    fprintf(file, "active_skill_1_index=%d\n", mainPlayer.active_skill_1_index);
+    fprintf(file, "active_skill_2_index=%d\n", mainPlayer.active_skill_2_index);
+    fprintf(file, "skill_1_cd=%d\n", mainPlayer.skill_1_cd);
+    fprintf(file, "skill_2_cd=%d\n", mainPlayer.skill_2_cd);
+    
+    // Simpan daftar Skill yang dimiliki (Owned Skills)
+    fprintf(file, "OWNED_SKILL_COUNT=%d\n", mainPlayer.owned_skill_count);
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        fprintf(file, "SKILL_OWNED_ID=%d\n", mainPlayer.owned_skill_ids[i]);
+    }
+
     // Tambahkan stat lain di sini jika ada (misal: EQUIPPED_WEAPON_ID)
     fprintf(file, "BAG_SIZE=%d\n", mainPlayer.inventory_count);
     for (int i = 0; i < mainPlayer.inventory_count; i++) {
@@ -81,11 +96,11 @@ void load_game_data(const char *username) {
         return;
     }
 
-   char key[20];
+    int owned_skill_counter = 0;
+    char key[20];
     int value;
     char line[100];
     int load_index = 0; // BARU: Indeks untuk mengisi inventory
-    
     // Reset inventory sebelum memuat
     mainPlayer.inventory_count = 0; 
 
@@ -109,7 +124,21 @@ void load_game_data(const char *username) {
                 else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
                 else if (strcmp(key, "equipped_armor_id") == 0) mainPlayer.equipped_armor_id = value; 
                 else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
+                else if (strcmp(key, "active_skill_1_index") == 0) mainPlayer.active_skill_1_index = value;
+                else if (strcmp(key, "active_skill_2_index") == 0) mainPlayer.active_skill_2_index = value;
+                else if (strcmp(key, "skill_1_cd") == 0) mainPlayer.skill_1_cd = value;
+                else if (strcmp(key, "skill_2_cd") == 0) mainPlayer.skill_2_cd = value;
+                else if (strcmp(key, "OWNED_SKILL_COUNT") == 0) mainPlayer.owned_skill_count = value;
             }
+            else if (strncmp(line, "SKILL_OWNED_ID=", 15) == 0) {
+            int skill_id;
+            if (sscanf(line, "SKILL_OWNED_ID=%d", &skill_id) == 1) {
+                if (owned_skill_counter < MAX_SKILLS_OWNED) {
+                    mainPlayer.owned_skill_ids[owned_skill_counter] = skill_id;
+                    owned_skill_counter++;
+                }
+            }
+        } 
         }
         
         // 2. MUAT DATA BACKPACK (Contoh: ITEM=101,2)
@@ -160,6 +189,19 @@ void check_for_level_up() {
 
 //====================================================================================================================
 
+
+// ... (Kode untuk fungsi get_skill_by_id) ...
+// Fungsi untuk mendapatkan data skill dari daftarSkill global
+struct Skill get_skill_by_id(int id) {
+    for (int i = 0; i < JUMLAH_SKILL; i++) {
+        if (daftarSkill[i].skillID == id) {
+            return daftarSkill[i];
+        }
+    }
+    // Mengembalikan skill kosong jika tidak ditemukan
+    struct Skill empty = {0}; 
+    return empty;
+}
 
 int get_random_rarity() {
     // Menghasilkan angka acak antara 1 hingga 100
@@ -551,69 +593,84 @@ void bag(){
 
 
 //===============================================================================================================================================use item and use skill
-void use_skill() {
-    int skill_id_baru;
-    int skill_slot;
+struct Skill get_skill_by_id(int id);
+
+void change_skill() {
+    int active_slot, skill_id_baru;
+
+    printf("\n--- GANTI SKILL AKTIF ---\n");
+    printf("Skill Aktif Saat Ini:\n");
+
+    // Tampilkan skill aktif saat ini (menggunakan index dari array owned_skill_ids)
+    struct Skill skill_1 = get_skill_by_id(mainPlayer.owned_skill_ids[mainPlayer.active_skill_1_index]);
+    struct Skill skill_2 = get_skill_by_id(mainPlayer.owned_skill_ids[mainPlayer.active_skill_2_index]);
     
-    printf("\n--- UBAH SKILL LOADOUT ---\n");
+    printf("1. Slot 1: %s (CD: %d)\n", skill_1.nama, skill_1.cooldown_max);
+    printf("2. Slot 2: %s (CD: %d)\n", skill_2.nama, skill_2.cooldown_max);
+    printf("--------------------------------\n");
     
-    // Tampilkan Daftar Skill Tersedia
-    printf("Skill Tersedia (ID | Nama | CD): \n");
-    for (int i = 0; i < JUMLAH_SKILL; i++) {
-        printf("  ID %d: %s (CD: %d)\n", 
-               daftarSkill[i].skillID, daftarSkill[i].nama, daftarSkill[i].cooldown_max);
+    printf("Skill yang Anda Miliki:\n");
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        struct Skill s = get_skill_by_id(mainPlayer.owned_skill_ids[i]);
+        printf("ID: %d | %s (Rarity: %d, Efek: %d, CD: %d)\n", 
+               s.skillID, s.nama, s.rarity, s.effect_value, s.cooldown_max);
     }
+    printf("--------------------------------\n");
 
-    // Input Slot
-    printf("Pilih Slot (1 atau 2) yang ingin diubah: ");
-    if (scanf("%d", &skill_slot) != 1 || (skill_slot != 1 && skill_slot != 2)) {
-        printf("Input slot tidak valid.\n");
-        
-        // GUNAKAN KURUNG KURAWAL untuk logika pembersihan dan return:
-        while (getchar() != '\n'); 
-        return; 
-    }
-    // HANYA pembersihan buffer setelah input yang berhasil:
-    while (getchar() != '\n');
-
-    // Input ID Skill Baru (Contoh perbaikan di sekitar baris 333)
-    printf("Masukkan ID Skill baru yang akan dipasang: ");
-    if (scanf("%d", &skill_id_baru) != 1) {
-        printf("Input ID skill tidak valid.\n");
-        
-        // GUNAKAN KURUNG KURAWAL untuk logika pembersihan dan return:
-        while (getchar() != '\n'); 
-        return; 
-    }
-    // HANYA pembersihan buffer setelah input yang berhasil:
-    while (getchar() != '\n');  // Membersihkan buffer
-
-    // Cari Indeks Skill berdasarkan ID yang dimasukkan user
-    int skill_index = -1;
-    for (int i = 0; i < JUMLAH_SKILL; i++) {
-        if (daftarSkill[i].skillID == skill_id_baru) {
-            skill_index = i;
-            break;
-        }
-    }
-
-    if (skill_index == -1) {
-        printf("Skill dengan ID %d tidak ditemukan.\n", skill_id_baru);
+    printf("Pilih Slot Aktif yang ingin diganti (1 atau 2): ");
+    if (scanf("%d", &active_slot) != 1) {
+        // ... (pembersihan input)
         return;
     }
     
-    // Terapkan Perubahan
-    if (skill_slot == 1) {
-        mainPlayer.active_skill_1_index = skill_index;
-        printf("Slot 1 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
-    } else { // skill_slot == 2
-       mainPlayer.active_skill_2_index = skill_index;
-        printf("Slot 2 berhasil diubah menjadi: %s\n", daftarSkill[skill_index].nama);
+    if (active_slot != 1 && active_slot != 2) {
+        printf("ERROR: Slot aktif harus 1 atau 2.\n");
+        return;
+    }
+
+    printf("Masukkan ID Skill BARU dari daftar skill yang dimiliki: ");
+    if (scanf("%d", &skill_id_baru) != 1) {
+        // ... (pembersihan input)
+        return;
     }
     
-    // Reset Cooldown skill yang baru dipasang
-    if (skill_slot == 1) mainPlayer.skill_1_cd = 0;
-    if (skill_slot == 2) mainPlayer.skill_2_cd = 0;
+    // ==========================================================
+    // VALIDASI: Cek apakah skillID baru dimiliki pemain
+    // ==========================================================
+    int skill_index_in_owned = -1;
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        if (mainPlayer.owned_skill_ids[i] == skill_id_baru) {
+            skill_index_in_owned = i;
+            break;
+        }
+    }
+    
+    if (skill_index_in_owned == -1) {
+        printf("ERROR: Skill ID %d tidak ditemukan di skill yang Anda miliki.\n", skill_id_baru);
+        return;
+    }
+    
+    // ==========================================================
+    // VALIDASI: Cek apakah skillID sudah aktif di slot lain
+    // ==========================================================
+    if ((active_slot == 1 && skill_id_baru == mainPlayer.owned_skill_ids[mainPlayer.active_skill_2_index]) ||
+        (active_slot == 2 && skill_id_baru == mainPlayer.owned_skill_ids[mainPlayer.active_skill_1_index])) {
+        printf("ERROR: Skill %s sudah aktif di slot lain.\n", get_skill_by_id(skill_id_baru).nama);
+        return;
+    }
+
+    // Lakukan penggantian skill
+    struct Skill skill_baru = get_skill_by_id(skill_id_baru);
+    
+    if (active_slot == 1) {
+        mainPlayer.active_skill_1_index = skill_index_in_owned;
+        mainPlayer.skill_1_cd = 0; // Reset CD saat diganti
+    } else {
+        mainPlayer.active_skill_2_index = skill_index_in_owned;
+        mainPlayer.skill_2_cd = 0; // Reset CD saat diganti
+    }
+
+    printf("\nSUKSES: Slot %d berhasil diganti menjadi %s.\n", active_slot, skill_baru.nama);
 }
 
 struct Item get_item_by_id(int id) {
@@ -658,7 +715,7 @@ void use_equipment() {
         printf("Item dengan ID %d tidak ditemukan.\n", input_id);
         return;
     }
-    
+
      int qty_in_bag = is_item_in_inventory(input_id);
 
     if (qty_in_bag <= 0) {
@@ -786,6 +843,19 @@ void login_system() {
         tambahkan_item_ke_bag(103, 5); 
         // -----------------------------
 
+        mainPlayer.owned_skill_count = 0; 
+
+        // 2. Tambahkan Skill ID 101 dan 102 ke daftar yang dimiliki
+        // (Anda dapat membuat fungsi 'learn_skill' terpisah, tapi kita lakukan inline di sini)
+        mainPlayer.owned_skill_ids[0] = 101;
+        mainPlayer.owned_skill_ids[1] = 102;
+        mainPlayer.owned_skill_count = 2; // Pemain memiliki 2 skill
+
+        // 3. Atur sebagai Skill Aktif
+        // active_skill_1_index dan 2 menyimpan index dalam array owned_skill_ids
+        mainPlayer.active_skill_1_index = 0; // Skill 1: Index 0 (ID 101)
+        mainPlayer.active_skill_2_index = 1; // Skill 2: Index 1 (ID 102)
+
         strcpy(mainPlayer.username, username);
         save_game_data(); 
         
@@ -858,7 +928,7 @@ void main_loop(){
             use_equipment(); 
         }
         else if (strcmp(aksiPengguna, "USE_SKILL") == 0) {
-            use_skill(); 
+            change_skill(); 
         }  
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 

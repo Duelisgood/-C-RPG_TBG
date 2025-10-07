@@ -2,6 +2,7 @@
 #define GAME_DATA_H
 #define MAX_NAMA 50
 #define MAX_INVENTORY_SLOTS 50
+#define MAX_SKILLS_OWNED 10
 
 // Definisi Struktur untuk Item
 struct Item {
@@ -25,10 +26,12 @@ struct Monster {
     int expDrop;
 };
 
+// game_data.h
 struct Skill {
     int skillID;
     char nama[MAX_NAMA];
     int cooldown_max;       // Cooldown maksimal dalam turn
+    int rarity;             // BARU: Rarity Skill
     char effect_type[10];   // "HEAL" atau "ATTACK"
     int effect_value;       // Nilai efek (HP atau Damage tambahan)
 };
@@ -62,6 +65,9 @@ struct Player {
     // Inventory Array
     struct InventorySlot inventory[MAX_INVENTORY_SLOTS];
     int inventory_count; // Jumlah slot yang terisi (bukan jumlah item)
+
+    int owned_skill_ids[MAX_SKILLS_OWNED]; // Array ID Skill yang dimiliki (misal: {101, 102, 0, ...})
+    int owned_skill_count;
 };
 
 
