@@ -157,6 +157,8 @@ void load_game_data(const char *username) {
     mainPlayer.owned_skill_count = owned_skill_counter; 
     
     fclose(file);
+    apply_stat_boosts(); 
+
     printf("Data %s dimuat. Level %d | HP %d | ATK %d | Item di tas: %d\n", 
            username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK, mainPlayer.inventory_count);
 }
