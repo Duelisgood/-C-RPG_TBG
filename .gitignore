@@ -1,0 +1,9 @@
+# File-file hasil kompilasi (executables dan object files)
+*.exe
+*.o
+
+# Folder output
+output/
+
+# File IDE atau editor tertentu (opsional)
+.vscode/
