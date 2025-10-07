@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
+#include <ctype.h>  
 #include <time.h>   
 #include "game_data.h"
 #define MAX_INPUT 50
@@ -157,24 +158,26 @@ void check_for_level_up() {
     }
 }
 
-//====================================================================================================================================================================================
+//====================================================================================================================
 
 
-void test_data(){
-        // Akses data Item dari file game_data.c
-    printf("Item Pertama (Total %d): ID %d, Nama: %s, Harga: %d\n",
-           JUMLAH_ITEM,
-           daftarItem[0].itemID,
-           daftarItem[0].nama,
-           daftarItem[0].harga);
+int get_random_rarity() {
+    // Menghasilkan angka acak antara 1 hingga 100
+    int rarity_roll = (rand() % 100) + 1; 
 
-    // Akses data Monster dari file game_data.c
-    printf("Monster Kedua (Total %d): ID %d, Nama: %s, HP: %d\n",
-           JUMLAH_MONSTER,
-           daftarMonster[1].monsterID,
-           daftarMonster[1].nama,
-           daftarMonster[1].healthPoint);
+    if (rarity_roll <= 50) {
+        return 1; // 1-50: Umum (50%)
+    } else if (rarity_roll <= 75) {
+        return 2; // 51-75: Tidak Biasa (25%)
+    } else if (rarity_roll <= 90) {
+        return 3; // 76-90: Langka (15%)
+    } else if (rarity_roll <= 97) {
+        return 4; // 91-97: Epik (7%)
+    } else { // 98-100
+        return 5; // 98-100: Legendaris (3%)
+    }
 }
+
 
 
 void bacaInput(char *input) {
@@ -188,25 +191,64 @@ void bacaInput(char *input) {
 
   //==========================================================================================================================================Fight and Explore>>>>> 
   
+struct Item get_random_item_by_rarity(int required_rarity) {
+    
+    // Array sementara untuk menampung indeks item yang cocok
+    int available_item_indices[JUMLAH_ITEM];
+    int count = 0;
 
-struct Monster get_random_monster() {
-    if (JUMLAH_MONSTER == 0) {
-        struct Monster default_m = {
-            .monsterID = 999,
-            .nama = "Error Monster", 
-            .healthPoint = 1,
-            .attackPower = 1,
-            .rarity = 0,          
-            .skillPower = 0,      
-            .goldDrop = 0,        
-            .expDrop = 0          
-        };
-        return default_m;
+    // 1. Cari item yang cocok dengan Rarity
+    for (int i = 0; i < JUMLAH_ITEM; i++) {
+        // Hanya pertimbangkan item yang dapat ditemukan (misalnya BUKAN Consumable)
+        // Kita asumsikan semua item non-Consumable dapat ditemukan.
+        if (daftarItem[i].rarity == required_rarity && 
+            strcmp(daftarItem[i].type, "CONSUMABLE") != 0) { 
+            available_item_indices[count] = i; // Simpan indeks yang cocok
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        printf("Peringatan: Tidak ada item Rarity %d yang ditemukan. Mencari Rarity 1.\n", required_rarity);
+        // Fallback: Jika Rarity yang diminta tidak ada, ambil item Rarity 1
+        return get_random_item_by_rarity(1);
     }
     
-    int random_index = rand() % JUMLAH_MONSTER;
+    // 2. Pilih indeks acak dari daftar item yang cocok
+    int random_list_index = rand() % count;
+    int final_item_index = available_item_indices[random_list_index];
     
-    return daftarMonster[random_index];
+    // 3. Kembalikan item yang dipilih
+    return daftarItem[final_item_index];
+}
+
+// Fungsi yang dimodifikasi untuk memilih monster berdasarkan Rarity
+struct Monster get_random_monster_by_rarity(int required_rarity) {
+    
+    // Array sementara untuk menampung ID monster yang cocok
+    int available_monster_indices[JUMLAH_MONSTER];
+    int count = 0;
+
+    // 1. Cari monster yang cocok dengan Rarity
+    for (int i = 0; i < JUMLAH_MONSTER; i++) {
+        if (daftarMonster[i].rarity == required_rarity) {
+            available_monster_indices[count] = i; // Simpan indeks yang cocok
+            count++;
+        }
+    }
+
+    if (count == 0) {
+        printf("Peringatan: Tidak ada monster Rarity %d yang ditemukan. Kembali ke Rarity 1.\n", required_rarity);
+        // Fallback ke monster Rarity 1 jika Rarity yang diminta tidak ada
+        return get_random_monster_by_rarity(1);
+    }
+    
+    // 2. Pilih indeks acak dari daftar monster yang cocok
+    int random_list_index = rand() % count;
+    int final_monster_index = available_monster_indices[random_list_index];
+    
+    // 3. Kembalikan monster yang dipilih
+    return daftarMonster[final_monster_index];
 }
 
 void monster_turn(struct Monster *musuh) {
@@ -428,27 +470,34 @@ void explore(){
 
     if (Nomor_Acak >= 0 && Nomor_Acak <= 60) {
         // Monster: 0-60 (61%)
-        struct Monster monster_saat_ini = get_random_monster();
-        printf("Seekor monster muncul: %s (HP: %d)!\n", 
+
+        // BARU: 1. Tentukan Rarity monster
+        int monster_rarity = get_random_rarity(); 
+        
+        // BARU: 2. Dapatkan monster yang sesuai Rarity
+        struct Monster monster_saat_ini = get_random_monster_by_rarity(monster_rarity);
+        
+        printf("Seekor monster muncul: %s (Rarity %d, HP: %d)!\n", 
                monster_saat_ini.nama, 
+               monster_rarity, // Tampilkan rarity-nya
                monster_saat_ini.healthPoint);
-               start_fight(monster_saat_ini);
+               
+        start_fight(monster_saat_ini);
     } 
     else if (Nomor_Acak >= 61 && Nomor_Acak <= 85) {
         // Item: 61-85 (25%)
         printf("Anda menemukan sebuah item tersembunyi!\n");
 
-        // ----------------------------------------------------
-        // >>> LOGIKA MENGAMBIL ITEM RANDOM <<<
+        // BARU: 1. Tentukan Rarity item
+        int item_rarity = get_random_rarity(); 
         
-        // 1. Dapatkan indeks acak dari 0 hingga JUMLAH_ITEM - 1
-        int random_index = rand() % JUMLAH_ITEM;
+        // BARU: 2. Dapatkan item yang sesuai Rarity
+        struct Item item_ditemukan = get_random_item_by_rarity(item_rarity);
         
-        // 2. Ambil ID dari item pada indeks acak tersebut
-        int random_item_id = daftarItem[random_index].itemID;
+        // 3. Tambahkan item ke bag (misal: selalu 1 buah)
+        tambahkan_item_ke_bag(item_ditemukan.itemID, 1);
         
-        // 3. Tambahkan item ke bag (misal: 1 buah)
-        tambahkan_item_ke_bag(random_item_id, 1);
+        printf("Anda menemukan item Rarity %d: %s.\n", item_rarity, item_ditemukan.nama);
         
         // ----------------------------------------------------
     }  
@@ -658,43 +707,66 @@ void login_system() {
     char username[MAX_USERNAME];
     char choice[MAX_INPUT];
     FILE *file = NULL;
+    int valid_choice = 0;
 
     printf("--- SISTEM LOGIN ---\n");
-    printf("Pilih: [LOGIN] atau [REGISTER] (atau QUIT): ");
 
-    if (fgets(choice, MAX_INPUT, stdin) == NULL) return;
-    bersihkanString(choice);
+    // --- LOOP UNTUK MEMASTIKAN COMMAND VALID ---
+    while (!valid_choice) {
+        printf("Pilih: [LOGIN] atau [REGISTER] (atau QUIT): ");
 
-    if (strcmp(choice, "QUIT") == 0 || strcmp(choice, "quit") == 0) {
-        printf("Terima kasih, sampai jumpa!\n");
-        exit(0); // Keluar dari program
+        if (fgets(choice, MAX_INPUT, stdin) == NULL) continue;
+        bersihkanString(choice);
+
+        // Ubah input menjadi huruf kapital untuk perbandingan yang lebih mudah
+        for (int i = 0; choice[i]; i++) {
+            choice[i] = toupper(choice[i]); // toupper memerlukan <ctype.h>
+        }
+        
+        if (strcmp(choice, "QUIT") == 0) {
+            printf("Terima kasih, sampai jumpa!\n");
+            exit(0); // Keluar dari program
+        } 
+        else if (strcmp(choice, "LOGIN") == 0 || strcmp(choice, "REGISTER") == 0) {
+            valid_choice = 1; // Input valid, keluar dari loop command
+        } else {
+            printf("!!! Perintah tidak valid. Harap masukkan LOGIN, REGISTER, atau QUIT. !!!\n");
+            // Kembali ke awal loop command
+        }
     }
 
+    // --- INPUT USERNAME (Hanya diproses setelah command valid) ---
     printf("Masukkan Username: ");
     if (fgets(username, MAX_USERNAME, stdin) == NULL) {
         printf("Input gagal.\n");
+        login_system(); // Kembali ke awal fungsi jika input username gagal
         return;
     }
     bersihkanString(username);
 
     // 1. OPSI REGISTER
-    if (strcmp(choice, "REGISTER") == 0 || strcmp(choice, "register") == 0) {
-        // ... (Cek akun sudah ada) ...
+    if (strcmp(choice, "REGISTER") == 0) {
         
-        // Buat file baru (mode 'w' untuk tulis)
+        file = fopen(username, "r");
+        if (file != NULL) {
+            printf("--- AKUN SUDAH ADA. Silakan LOGIN. ---\n");
+            fclose(file);
+            login_system(); // Coba lagi
+            return;
+        }
+        
+        // Buat file baru
         file = fopen(username, "w");
         // ... (Cek error file) ...
-        fclose(file); // Tutup file 'w' yang baru dibuat
+        fclose(file);
 
-          // Set stat awal dan simpan ke file baru
+        // Set stat awal dan simpan ke file
         mainPlayer.HP = 10; 
         mainPlayer.ATK = 2; 
         // ... (Set stat dasar lainnya) ...
         
         // --- INISIALISASI INVENTORY ---
-        // Tambahkan Pedang Kayu (ID 101) x1
         tambahkan_item_ke_bag(101, 1); 
-        // Tambahkan Ramuan Kecil (ID 103) x5
         tambahkan_item_ke_bag(103, 5); 
         // -----------------------------
 
@@ -707,9 +779,14 @@ void login_system() {
     } 
     
     // 2. OPSI LOGIN
-    else if (strcmp(choice, "LOGIN") == 0 || strcmp(choice, "login") == 0) {
+    else if (strcmp(choice, "LOGIN") == 0) {
         
-        // ... (Cek file exist) ...
+        file = fopen(username, "r");
+        if (file == NULL) {
+            printf("--- ERROR: Username tidak ditemukan. Silakan REGISTER. ---\n");
+            login_system();
+            return;
+        }
         
         printf("--- Login Sukses! Selamat datang, %s. ---\n", username);
         fclose(file);
