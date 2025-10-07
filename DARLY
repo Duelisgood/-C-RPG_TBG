@@ -1,0 +1,10 @@
+HP=10
+ATK=3
+DEF=5
+LEVEL=1
+XP=0
+GOLD=0
+equipped_armor_id=102
+bonus_def=5
+BAG_SIZE=1
+ITEM=102,1

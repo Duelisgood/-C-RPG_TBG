@@ -17,23 +17,27 @@ struct Player mainPlayer = {
     .GOLD = 0,
     .equipped_weapon_id = 0,
     .bonus_atk = 0,
+    .equipped_armor_id = 0, 
+    .bonus_def = 0,   
     .skill_1_cd = 0,
     .skill_2_cd = 0,
     .active_skill_1_index = 0,
     .active_skill_2_index = 1,
     .inventory_count = 0 
-    
+
 };
 
 struct Item get_item_by_id(int id);
-void tambahkan_item_ke_bag(int item_id_baru, int jumlah);
-void save_game_data();
 
 
-//=====Game Save
-void save_game_data();
-void load_game_data(const char *username);
-void check_for_level_up();
+//======================================================================================================================================================Game Save
+
+void bersihkanString(char *str) {
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+}
 
 void save_game_data() {
     if (strcmp(mainPlayer.username, "") == 0) {
@@ -54,7 +58,16 @@ void save_game_data() {
     fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
+    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
+    fprintf(file, "bonus_def=%d\n", mainPlayer.bonus_def);  
     // Tambahkan stat lain di sini jika ada (misal: EQUIPPED_WEAPON_ID)
+    fprintf(file, "BAG_SIZE=%d\n", mainPlayer.inventory_count);
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        // Tulis ITEM=ID,Quantity
+        fprintf(file, "ITEM=%d,%d\n", 
+                mainPlayer.inventory[i].itemID, 
+                mainPlayer.inventory[i].quantity);
+    }
 
     fclose(file);
     printf("[Data berhasil disimpan ke %s]\n", mainPlayer.username);
@@ -67,22 +80,57 @@ void load_game_data(const char *username) {
         return;
     }
 
-    char key[20];
+   char key[20];
     int value;
+    char line[100];
+    int load_index = 0; // BARU: Indeks untuk mengisi inventory
+    
+    // Reset inventory sebelum memuat
+    mainPlayer.inventory_count = 0; 
 
-    // Baca setiap baris data dalam format KEY=VALUE
-    while (fscanf(file, "%19[^=]=%d\n", key, &value) == 2) {
-        if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
-        else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
-        else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
-        else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
-        else if (strcmp(key, "XP") == 0) mainPlayer.XP = value;
-        else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
-        // Tambahkan else if untuk stat lain di sini
-    }
+    // LOOP TUNGGAL: Membaca file BARIS DEMI BARIS
+    while (fgets(line, sizeof(line), file) != NULL) {
+        
+        bersihkanString(line); // Hapus newline
 
+        // 1. MUAT STAT DASAR (Contoh: HP=10)
+        if (strncmp(line, "ITEM=", 5) != 0) { // <--- TAMBAHKAN CHECK INI
+    
+            if (sscanf(line, "%19[^=]=%d", key, &value) == 2) {
+                // ... (Kode muat stat HP, ATK, DEF, LEVEL, XP, GOLD ke mainPlayer.STAT) ...
+                
+                // TIDAK PERLU else if
+                if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
+                else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
+                else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
+                else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
+                else if (strcmp(key, "XP") == 0) mainPlayer.XP = value;
+                else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
+                else if (strcmp(key, "equipped_armor_id") == 0) mainPlayer.equipped_armor_id = value; 
+                else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
+            }
+        }
+        
+        // 2. MUAT DATA BACKPACK (Contoh: ITEM=101,2)
+        else if (strncmp(line, "ITEM=", 5) == 0) {
+            int id, qty;
+            if (sscanf(line, "ITEM=%d,%d", &id, &qty) == 2) {
+                if (load_index < MAX_INVENTORY_SLOTS) {
+                    // Item dimuat ke array inventory milik struct Player
+                    mainPlayer.inventory[load_index].itemID = id;
+                    mainPlayer.inventory[load_index].quantity = qty;
+                    load_index++; // PENTING: Tingkatkan indeks untuk item berikutnya
+                }
+            }
+        }
+    } // Tutup loop utama while (fgets)
+
+    // Tetapkan inventory_count global dari jumlah item yang berhasil dimuat
+    mainPlayer.inventory_count = load_index; 
+    
     fclose(file);
-    printf("Data %s dimuat. Level %d | HP %d | ATK %d.\n", username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK);
+    printf("Data %s dimuat. Level %d | HP %d | ATK %d | Item di tas: %d\n", 
+           username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK, mainPlayer.inventory_count);
 }
 
 void check_for_level_up() {
@@ -109,13 +157,8 @@ void check_for_level_up() {
     }
 }
 
-//=====================================================
-void bersihkanString(char *str) {
-    size_t len = strlen(str);
-    if (len > 0 && str[len - 1] == '\n') {
-        str[len - 1] = '\0';
-    }
-}
+//====================================================================================================================================================================================
+
 
 void test_data(){
         // Akses data Item dari file game_data.c
@@ -143,7 +186,7 @@ void bacaInput(char *input) {
     }
 }
 
-  //===================================Fight and Explore>>>>> 
+  //==========================================================================================================================================Fight and Explore>>>>> 
   
 
 struct Monster get_random_monster() {
@@ -317,6 +360,7 @@ void lakukan_pertarungan(struct Monster musuh) {
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
     // 1. Cek apakah item sudah ada di Inventory
     for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        // PERBAIKAN: Menggunakan mainPlayer.inventory
         if (mainPlayer.inventory[i].itemID == item_id_baru) {
             mainPlayer.inventory[i].quantity += jumlah;
             struct Item item = get_item_by_id(item_id_baru);
@@ -328,9 +372,10 @@ void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
     // 2. Jika item belum ada, cari slot kosong
     if (mainPlayer.inventory_count < MAX_INVENTORY_SLOTS) {
         int new_index = mainPlayer.inventory_count;
+        // PERBAIKAN: Menggunakan mainPlayer.inventory
         mainPlayer.inventory[new_index].itemID = item_id_baru;
         mainPlayer.inventory[new_index].quantity = jumlah;
-        mainPlayer.inventory_count++;
+        mainPlayer.inventory_count++; // Tingkatkan jumlah slot terisi
         
         struct Item item = get_item_by_id(item_id_baru);
         printf("\nItem baru ditemukan: %s x%d!\n", item.nama, jumlah);
@@ -414,9 +459,8 @@ void explore(){
 }
 
 
-//=========================== inventory backpack>>>>
+//========================================================================================================================================================== inventory backpack>>>>
 // game.c
-
 
 
 void bag(){
@@ -448,7 +492,7 @@ void bag(){
 }
 
 
-//================use item and use skill
+//===============================================================================================================================================use item and use skill
 void use_skill() {
     int skill_id_baru;
     int skill_slot;
@@ -580,8 +624,27 @@ void use_equipment() {
     } 
     // LOGIKA LAIN (ARMOR, dll.)
     else if (strcmp(item_pilihan.type, "ARMOR") == 0) {
-        printf("Item tipe ARMOR belum didukung untuk dilengkapi.\n");
-    }
+        
+        // 1. Lepaskan Armor lama
+        if (mainPlayer.equipped_armor_id != 0) {
+            struct Item old_armor = get_item_by_id(mainPlayer.equipped_armor_id);
+            mainPlayer.bonus_def -= old_armor.stat_boost;
+            printf("Armor lama (%s) dilepas. DEF -%d.\n", old_armor.nama, old_armor.stat_boost);
+        }
+
+        // 2. Equip Armor baru
+        mainPlayer.equipped_armor_id = item_pilihan.itemID;
+        mainPlayer.bonus_def += item_pilihan.stat_boost;
+        
+        // 3. Perbarui stat DEF total Player (Asumsi DEF Dasar = 0)
+        mainPlayer.DEF = mainPlayer.bonus_def; // DEF = Bonus dari Armor
+
+        printf("Berhasil melengkapi %s! Bonus DEF: +%d.\n", 
+               item_pilihan.nama, item_pilihan.stat_boost);
+        printf("DEF total Anda sekarang: %d.\n", mainPlayer.DEF);
+
+    } 
+
     else if (strcmp(item_pilihan.type, "CONSUMABLE") == 0) {
          printf("Gunakan item Consumable di Inventory (Belum diimplementasikan).\n");
     }
@@ -590,7 +653,7 @@ void use_equipment() {
     }
 }
 
-//===================LOGIN System
+//==================================================================================================================================================LOGIN System
 void login_system() {
     char username[MAX_USERNAME];
     char choice[MAX_INPUT];
@@ -659,15 +722,15 @@ void login_system() {
     } 
 }
 
-//==========================================Game Start>>>
+//====================================================================================================================================Game Start>>>
 void help(){
     printf("\n--- DAFTAR PERINTAH ---\n");
-    printf("explore\n");
-    printf("bag\n");
-    printf("use_equipment\n");
-    printf("use_skill\n");
-    printf("quit\n");
-    printf("help\n"); // Jangan lupa tambahkan 'help' itu sendiri!
+    printf("EXPLORE\n");
+    printf("BAG\n");
+    printf("USE_EQUIPMENT\n");
+    printf("USE_SKILL\n");
+    printf("QUIT\n");
+    printf("HELP\n"); // Jangan lupa tambahkan 'help' itu sendiri!
     printf("------------------------\n");
 }
 
@@ -688,19 +751,19 @@ void main_loop(){
     {
         bacaInput(aksiPengguna);
 
-        if (strcmp(aksiPengguna, "help") == 0) {
+        if (strcmp(aksiPengguna, "HELP") == 0) {
             help();
         } 
-        else if (strcmp(aksiPengguna, "bag") == 0) {
+        else if (strcmp(aksiPengguna, "BAG") == 0) {
             bag();
         }  
-        else if (strcmp(aksiPengguna, "use_equipment") == 0) {
+        else if (strcmp(aksiPengguna, "USE_EQUIPMENT") == 0) {
             use_equipment(); 
         }
-        else if (strcmp(aksiPengguna, "use_skill") == 0) {
+        else if (strcmp(aksiPengguna, "USE_SKILL") == 0) {
             use_skill(); 
         }  
-        else if (strcmp(aksiPengguna, "explore") == 0) {
+        else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 
         else if (strcmp(aksiPengguna, "QUIT") == 0 || strcmp(aksiPengguna, "quit") == 0) {

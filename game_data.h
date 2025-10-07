@@ -50,6 +50,9 @@ struct Player {
     int equipped_weapon_id;
     int bonus_atk;
 
+    int equipped_armor_id; // <-- DITAMBAHKAN
+    int bonus_def;      
+
     // Skill Cooldown (Pindahkan dari variabel global)
     int skill_1_cd;
     int skill_2_cd;
