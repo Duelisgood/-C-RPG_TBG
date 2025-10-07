@@ -398,6 +398,15 @@ void lakukan_pertarungan(struct Monster musuh) {
     } // Akhir dari while loop pertarungan
 } // Akhir dari fungsi l
 
+int is_item_in_inventory(int itemID) {
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        if (mainPlayer.inventory[i].itemID == itemID) {
+            return mainPlayer.inventory[i].quantity; // Mengembalikan jumlah item
+        }
+    }
+    return 0; // Item tidak ditemukan
+}
+
 // Fungsi untuk menambah Item (Contoh: Item ID 103 = Ramuan Kecil)
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
     // 1. Cek apakah item sudah ada di Inventory
@@ -630,7 +639,6 @@ void apply_stat_boosts() {
 }
 
 
-
 void use_equipment() {
     int input_id;
     printf("\n--- EQUIP ITEM (Weapon/Armor) ---\n");
@@ -648,6 +656,14 @@ void use_equipment() {
 
     if (item_pilihan.itemID == 0) {
         printf("Item dengan ID %d tidak ditemukan.\n", input_id);
+        return;
+    }
+    
+     int qty_in_bag = is_item_in_inventory(input_id);
+
+    if (qty_in_bag <= 0) {
+        printf("ERROR: Anda tidak memiliki item %s (ID %d) di tas Anda.\n", 
+               item_pilihan.nama, input_id);
         return;
     }
 
