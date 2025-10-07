@@ -11,6 +11,7 @@
 struct Player mainPlayer = {
     .username = "",
     .HP = 10,
+    .MAX_HP = 10,
     .ATK = 2,
     .DEF = 0,
     .LEVEL = 1,
@@ -35,6 +36,15 @@ struct Item get_item_by_id(int id);
 
 //======================================================================================================================================================Game Save
 
+void cls() {
+    
+    #ifdef _WIN32
+        system("cls");
+    #else
+        printf("\033[H\033[J"); 
+    #endif
+}
+
 void bersihkanString(char *str) {
     size_t len = strlen(str);
     if (len > 0 && str[len - 1] == '\n') {
@@ -56,6 +66,7 @@ void save_game_data() {
 
     // Tulis semua stat Player ke file
     fprintf(file, "HP=%d\n", mainPlayer.HP);
+    fprintf(file, "MAX_HP=%d\n", mainPlayer.MAX_HP);
     fprintf(file, "ATK=%d\n", mainPlayer.ATK);
     fprintf(file, "DEF=%d\n", mainPlayer.DEF);
     fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
@@ -140,6 +151,7 @@ void load_game_data(const char *username) {
         else if (sscanf(line, "%19[^=]=%d", key, &value) == 2) {
             
             if (strcmp(key, "HP") == 0) mainPlayer.HP = value;
+            else if (strcmp(key, "MAX_HP") == 0) mainPlayer.MAX_HP = value;
             else if (strcmp(key, "ATK") == 0) mainPlayer.ATK = value;
             else if (strcmp(key, "DEF") == 0) mainPlayer.DEF = value;
             else if (strcmp(key, "LEVEL") == 0) mainPlayer.LEVEL = value;
@@ -178,13 +190,14 @@ void check_for_level_up() {
         mainPlayer.XP -= exp_needed; 
         
         // Peningkatan Stat (Anda bisa atur sesuai keinginan)
-        mainPlayer.HP += 10; // +10 HP
-        mainPlayer.ATK += 2; // +2 ATK
-        mainPlayer.DEF += 1; // +1 DEF
+        mainPlayer.MAX_HP += 10; // +10 Max HP
+        mainPlayer.HP += 10;     // Pulihkan Current HP sebesar kenaikannya
+        mainPlayer.ATK += 2; 
+        mainPlayer.DEF += 1; 
 
         printf("\n***********************************\n");
         printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", mainPlayer.LEVEL);
-        printf("Stat bertambah: HP +10, ATK +2, DEF +1.\n");
+        printf("Stat bertambah: MAX HP +10, ATK +2, DEF +1.\n");
         printf("***********************************\n");
         
         // Hitung ulang EXP yang dibutuhkan untuk level berikutnya
@@ -380,11 +393,17 @@ void monster_turn(struct Monster *musuh) {
     }
 }
 
+void heal_to_max_hp() {
+    if (mainPlayer.HP < mainPlayer.MAX_HP) {
+        printf("\n[Sistem]: Memulihkan HP ke %d.\n", mainPlayer.MAX_HP);
+        mainPlayer.HP = mainPlayer.MAX_HP;
+    }
+}
+
 void lakukan_pertarungan(struct Monster musuh) {
 
     char input[MAX_INPUT];
     struct Monster *musuh_ptr = &musuh; 
-
     struct Skill skill1_data = daftarSkill[mainPlayer.active_skill_1_index]; 
     struct Skill skill2_data = daftarSkill[mainPlayer.active_skill_2_index];
 
@@ -405,8 +424,12 @@ void lakukan_pertarungan(struct Monster musuh) {
             skill1_data.nama, mainPlayer.skill_1_cd, skill2_data.nama, mainPlayer.skill_2_cd);
         
         // --- 2. GILIRAN PLAYER ---
-        if (fgets(input, MAX_INPUT, stdin) == NULL) continue;
+        if (fgets(input, MAX_INPUT, stdin) == NULL) continue; 
         bersihkanString(input);
+
+          for (int i = 0; input[i]; i++) {
+            input[i] = toupper(input[i]); 
+        }
 
         int turn_taken = 0;
 
@@ -422,7 +445,11 @@ void lakukan_pertarungan(struct Monster musuh) {
             }
             
                 if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
-                mainPlayer.HP += skill1_data.effect_value;
+                     mainPlayer.HP += skill1_data.effect_value;
+                // FIX: Batasi Current HP agar tidak melebihi Max HP
+                if (mainPlayer.HP > mainPlayer.MAX_HP) {
+                    mainPlayer.HP = mainPlayer.MAX_HP;
+                }   
                 } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
                     musuh_ptr->healthPoint -= (mainPlayer.ATK + skill1_data.effect_value);
                 }
@@ -440,8 +467,13 @@ void lakukan_pertarungan(struct Monster musuh) {
             
              
                 if (strcmp(skill2_data.effect_type, "HEAL") == 0) { 
-                    mainPlayer.HP += skill2_data.effect_value;
-                } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
+                     mainPlayer.HP += skill2_data.effect_value;
+                
+                    // FIX: Batasi Current HP agar tidak melebihi Max HP
+                    if (mainPlayer.HP > mainPlayer.MAX_HP) {
+                        mainPlayer.HP = mainPlayer.MAX_HP;
+                    }
+                    } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
                     musuh_ptr->healthPoint -= (mainPlayer.ATK + skill2_data.effect_value);
                 }
             
@@ -452,9 +484,16 @@ void lakukan_pertarungan(struct Monster musuh) {
         }
 
          else if (strcmp(input, "KABUR") == 0) {
-                printf("Anda berhasil kabur dari %s dan kembali ke menu utama.\n", musuh_ptr->nama);
-                return; 
+            
+            // Logika Kabur (50% Berhasil)
+            if (rand() % 100 < 50) { 
+                printf("Anda berhasil kabur dari %s dan kembali ke menu utama!\n", musuh_ptr->nama);
+                return; // Keluar dari pertarungan
+            } else {
+                printf("Gagal kabur! %s menyerang Anda saat mencoba lari!\n", musuh_ptr->nama);
+                turn_taken = 1; // Dianggap mengambil giliran yang gagal, monster harus menyerang
             }
+        }
 
         else {
             printf("Perintah tidak dikenal. Coba lagi.\n");
@@ -472,12 +511,13 @@ void lakukan_pertarungan(struct Monster musuh) {
             mainPlayer.GOLD += musuh_ptr->goldDrop;
             mainPlayer.XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
-            
+
+            heal_to_max_hp();
             check_for_level_up();
             save_game_data(); 
 
             return; // KELUAR dari lakukan_pertarungan()
-        } // <--- PASTIKAN BRACE INI ADA
+        } 
 
         // Hanya jika Player mengambil aksi yang valid (turn_taken == 1)
         if (turn_taken) {
@@ -505,11 +545,11 @@ int is_item_in_inventory(int itemID) {
 // Fungsi untuk menambah Item (Contoh: Item ID 103 = Ramuan Kecil)
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
     // 1. Cek apakah item sudah ada di Inventory
+    struct Item item = get_item_by_id(item_id_baru);
     for (int i = 0; i < mainPlayer.inventory_count; i++) {
         // PERBAIKAN: Menggunakan mainPlayer.inventory
         if (mainPlayer.inventory[i].itemID == item_id_baru) {
             mainPlayer.inventory[i].quantity += jumlah;
-            struct Item item = get_item_by_id(item_id_baru);
             printf("\n%s bertambah menjadi %d.\n", item.nama, mainPlayer.inventory[i].quantity);
             return;
         }
@@ -544,21 +584,19 @@ void start_fight(struct Monster musuh) {
     while (!valid_input) {
         printf("Pilih Aksi: [FIGHT] atau [KABUR]: ");
         
-        // Membaca input (gunakan fungsi bacaInput yang sudah Anda definisikan)
         if (fgets(aksi, MAX_INPUT, stdin) != NULL) {
-            bersihkanString(aksi); // Hapus karakter newline
+            bersihkanString(aksi); 
+            for (int i = 0; aksi[i]; i++) {
+                aksi[i] = toupper(aksi[i]); 
+            }
 
-            // Mencocokkan input
-            if (strcmp(aksi, "FIGHT") == 0 || strcmp(aksi, "fight") == 0) {
-                valid_input = 1;
-                // Masuk ke logika pertarungan
+            if (strcmp(aksi, "FIGHT") == 0) {
                 lakukan_pertarungan(musuh); 
-                // Di akhir pertarungan, Anda akan kembali ke main_loop()
+                return; // <-- HARUS KELUAR DARI start_fight setelah pertarungan selesai
             } 
-            else if (strcmp(aksi, "KABUR") == 0 || strcmp(aksi, "kabur") == 0) {
-                valid_input = 1;
-                // Keluar dari pertarungan dan kembali ke loop utama
+            else if (strcmp(aksi, "KABUR") == 0) {
                 kembali_ke_main();
+                return; // <-- HARUS KELUAR DARI start_fight setelah kabur
             } 
             else {
                 printf("Perintah tidak valid. Coba lagi.\n");
@@ -902,7 +940,9 @@ void login_system() {
 
         // Set stat awal dan simpan ke file
         mainPlayer.HP = 10; 
+        mainPlayer.MAX_HP = 10; // <-- FIX: Set Max HP awal
         mainPlayer.ATK = 2; 
+        mainPlayer.DEF = 0; // <-- FIX: Set DEF awal
         // ... (Set stat dasar lainnya) ...
         
         // --- INISIALISASI INVENTORY ---
@@ -925,7 +965,8 @@ void login_system() {
 
         strcpy(mainPlayer.username, username);
         save_game_data(); 
-        
+        cls();
+
         printf("--- Registrasi Sukses! Akun %s dibuat. Silakan LOGIN untuk bermain. ---\n", username);
         login_system();
         return;
@@ -961,7 +1002,8 @@ void help(){
     printf("USE_EQUIPMENT\n");
     printf("USE_SKILL\n");
     printf("QUIT\n");
-    printf("HELP\n"); // Jangan lupa tambahkan 'help' itu sendiri!
+    printf("HELP\n");
+    printf("CLS\n");// Jangan lupa tambahkan 'help' itu sendiri!
     printf("------------------------\n");
 }
 
@@ -996,6 +1038,7 @@ void main_loop(){
         }
         else if (strcmp(aksiPengguna, "USE_SKILL") == 0) {
             change_skill(); 
+            while (getchar() != '\n' && getchar() != EOF); 
         }  
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
@@ -1004,6 +1047,10 @@ void main_loop(){
             save_game_data(); // Simpan data sebelum keluar
             printf("Menyimpan dan keluar. Sampai jumpa!\n");
             return; // Keluar dari main_loop
+        }
+        else if (strcmp(aksiPengguna, "CLS") == 0)
+        {
+            cls();
         }
         else {
             printf("\n!!! Pilihan aksi tidak valid: %s\n", aksiPengguna);
@@ -1020,7 +1067,7 @@ int main()
     
     // PANGGIL SISTEM LOGIN SEBELUM START GAME
     login_system();
-    
+
     start_game();
     
     // Panggil loop utama game

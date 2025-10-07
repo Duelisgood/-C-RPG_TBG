@@ -43,7 +43,8 @@ struct InventorySlot {
 
 struct Player {
     char username[50];
-    int HP;
+    int HP;      
+    int MAX_HP; 
     int ATK;
     int DEF;
     int LEVEL;
