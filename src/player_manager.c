@@ -61,11 +61,14 @@ void save_game_data() {
     fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
     fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
     fprintf(file, "bonus_def=%d\n", mainPlayer.bonus_def);  
+    fprintf(file, "equipped_helmet_id=%d\n", mainPlayer.equipped_helmet_id);
+    fprintf(file, "bonus_hp=%d\n", mainPlayer.bonus_hp);
 
     fprintf(file, "active_skill_1_index=%d\n", mainPlayer.active_skill_1_index);
     fprintf(file, "active_skill_2_index=%d\n", mainPlayer.active_skill_2_index);
     fprintf(file, "skill_1_cd=%d\n", mainPlayer.skill_1_cd);
     fprintf(file, "skill_2_cd=%d\n", mainPlayer.skill_2_cd);
+
     
     // Simpan daftar Skill yang dimiliki (Owned Skills)
     fprintf(file, "OWNED_SKILL_COUNT=%d\n", mainPlayer.owned_skill_count);
@@ -145,6 +148,8 @@ void load_game_data(const char *username) {
             else if (strcmp(key, "GOLD") == 0) mainPlayer.GOLD = value;
             else if (strcmp(key, "equipped_armor_id") == 0) mainPlayer.equipped_armor_id = value; 
             else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
+            else if (strcmp(key, "equipped_helmet_id") == 0) mainPlayer.equipped_helmet_id = value;
+            else if (strcmp(key, "bonus_hp") == 0) mainPlayer.bonus_hp = value;
             else if (strcmp(key, "active_skill_1_index") == 0) mainPlayer.active_skill_1_index = value;
             else if (strcmp(key, "active_skill_2_index") == 0) mainPlayer.active_skill_2_index = value;
             else if (strcmp(key, "skill_1_cd") == 0) mainPlayer.skill_1_cd = value;
@@ -375,6 +380,29 @@ void use_equipment() {
         printf("DEF total Anda sekarang: %d.\n", mainPlayer.DEF);
 
     } 
+    else if (strcmp(item_pilihan.type, "HELMET") == 0) {
+        
+        // 1. Lepaskan Helmet lama dan kurangi bonus HP
+        if (mainPlayer.equipped_helmet_id != 0) {
+            struct Item old_helmet = get_item_by_id(mainPlayer.equipped_helmet_id);
+            mainPlayer.bonus_hp -= old_helmet.stat_boost;
+            printf("Helmet lama (%s) dilepas.\n", old_helmet.nama);
+        }
+
+        // 2. Equip Helmet baru dan tambahkan bonus HP
+        mainPlayer.equipped_helmet_id = item_pilihan.itemID;
+        mainPlayer.bonus_hp += item_pilihan.stat_boost;
+        
+        // 3. Panggil fungsi untuk mengkalkulasi ulang stat (lihat langkah berikutnya)
+        apply_stat_boosts(); 
+
+        printf("Berhasil melengkapi %s! Bonus MAX HP: +%d.\n", 
+               item_pilihan.nama, item_pilihan.stat_boost);
+        printf("MAX HP total Anda sekarang: %d.\n", mainPlayer.MAX_HP);
+
+        // Opsi: Pulihkan HP saat ini ke maks
+        heal_to_max_hp();
+    }
 
     else if (strcmp(item_pilihan.type, "CONSUMABLE") == 0) {
          printf("Gunakan item Consumable di Inventory (Belum diimplementasikan).\n");
@@ -467,14 +495,19 @@ void change_skill() {
 }
 
 void bag(){
-    printf("\n--- BAG & STATS ---\n");
+    printf("\n--- BAG & STATS   ---\n");
     printf("Username: %s\n", mainPlayer.username);
     printf("Level: %d | XP: %d\n", mainPlayer.LEVEL, mainPlayer.XP);
     printf("HP: %d | ATK: %d | DEF: %d | GOLD: %d\n", mainPlayer.HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.GOLD);
     
     // Tampilkan Equipment
     struct Item weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
-    printf("Weapon: %s (Bonus ATK: %d)\n", weapon.nama, mainPlayer.bonus_atk);
+    struct Item armor = get_item_by_id(mainPlayer.equipped_armor_id);
+    struct Item helmet = get_item_by_id(mainPlayer.equipped_helmet_id); // <-- TAMBAHKAN
+    
+    printf("Weapon: %s (+%d ATK)\n", weapon.itemID != 0 ? weapon.nama : "None", mainPlayer.bonus_atk);
+    printf("Armor: %s (+%d DEF)\n", armor.itemID != 0 ? armor.nama : "None", mainPlayer.bonus_def);
+    printf("Helmet: %s (+%d HP)\n", helmet.itemID != 0 ? helmet.nama : "None", mainPlayer.bonus_hp); // <-- TAMBAHKAN
     
     printf("\n--- INVENTORY ---\n");
     if (mainPlayer.inventory_count == 0) {

@@ -141,18 +141,25 @@ struct Skill get_skill_by_id(int id) {
 }
 
 void apply_stat_boosts() {
-    // 1. Hitung Base ATK (Asumsi ATK dasar 2 + 2 per level)
+    // 1. Hitung Base HP (Asumsi 10 HP di awal + 10 per level)
+    int base_hp_from_level = 10 + (mainPlayer.LEVEL - 1) * 10;
+    
+    // 2. Terapkan Bonus HP dari Helmet
+    mainPlayer.MAX_HP = base_hp_from_level + mainPlayer.bonus_hp;
+
+    // Jaga agar HP saat ini tidak melebihi MAX HP baru
+    if (mainPlayer.HP > mainPlayer.MAX_HP) {
+        mainPlayer.HP = mainPlayer.MAX_HP;
+    }
+
+    // 3. Hitung Base ATK (Asumsi ATK dasar 2 + 2 per level)
     int base_atk_from_level = 2 + (mainPlayer.LEVEL - 1) * 2; 
 
-    // 2. Terapkan Bonus ATK dari Weapon
-    mainPlayer.ATK = base_atk_from_level; 
-    mainPlayer.ATK += mainPlayer.bonus_atk;
+    // 4. Terapkan Bonus ATK dari Weapon
+    mainPlayer.ATK = base_atk_from_level + mainPlayer.bonus_atk;
     
-    // 3. Terapkan Bonus DEF dari Armor
+    // 5. Terapkan Bonus DEF dari Armor
     mainPlayer.DEF = mainPlayer.bonus_def; 
-    
-    // Catatan: Logika Max HP dan Current HP harus ditangani saat leveling/healing
-    // Fungsi ini hanya fokus pada ATK dan DEF
 }
 
 struct Skill get_random_skill_by_rarity(int required_rarity) {
@@ -281,3 +288,4 @@ void handle_monster_loot_drop(int monster_rarity) {
         drop_skill_book_by_rarity(monster_rarity);
     }
 }
+

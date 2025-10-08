@@ -46,6 +46,14 @@ struct Chest daftarChest[] = {
         .drop_item_ids = {105, 134, 136, 139, 236}, // Hadiah: Pedang Lebar (R2)
         .drop_count = 5
     },
+    {
+        .chestID = 651, 
+        .nama = "Kotak Perkakas Tua", 
+        .rarity = 1, 
+        .price = 125, 
+        .drop_item_ids = {160, 161, 131, 134, 260}, // Drop utama: Helm R1, Hadiah: Helm Prajurit (R2)
+        .drop_count = 5
+    },
 
     // =================================================================
     // ====================== RARITY 2 CHESTS ==========================
@@ -89,6 +97,14 @@ struct Chest daftarChest[] = {
         .rarity = 2, 
         .price = 400, 
         .drop_item_ids = {225, 234, 238, 102, 332}, // Hadiah: Baju Zirah Baja (R3)
+        .drop_count = 5
+    },
+    {
+        .chestID = 661, 
+        .nama = "Peti Baja Milisi", 
+        .rarity = 2, 
+        .price = 380, 
+        .drop_item_ids = {260, 262, 231, 201, 360}, // Drop utama: Helm R2, Hadiah: Helm Ksatria (R3)
         .drop_count = 5
     },
 
@@ -136,7 +152,14 @@ struct Chest daftarChest[] = {
         .drop_item_ids = {305, 325, 336, 338, 431}, // Hadiah: Pedang Api (R4)
         .drop_count = 5
     },
-
+    {
+        .chestID = 671, 
+        .nama = "Peti Perang Gladiator", 
+        .rarity = 3, 
+        .price = 950, 
+        .drop_item_ids = {360, 362, 331, 301, 460}, // Drop utama: Helm R3, Hadiah: Helm Mithril (R4)
+        .drop_count = 5
+    },
     // =================================================================
     // ====================== RARITY 4 CHESTS ==========================
     // (Drop: 4 item Rarity 4, 1 item Rarity 5)
@@ -179,6 +202,14 @@ struct Chest daftarChest[] = {
         .rarity = 4, 
         .price = 3500, 
         .drop_item_ids = {405, 425, 431, 437, 531}, // Hadiah: Armor Sisik Naga (R5)
+        .drop_count = 5
+    },
+    {
+        .chestID = 681, 
+        .nama = "Warisan Komandan Jatuh", 
+        .rarity = 4, 
+        .price = 3300, 
+        .drop_item_ids = {461, 463, 436, 405, 561}, // Drop utama: Helm R4, Hadiah: Mahkota Raja Kuno (R5)
         .drop_count = 5
     },
 
@@ -225,7 +256,15 @@ struct Chest daftarChest[] = {
         .price = 25000, 
         .drop_item_ids = {534, 535, 536, 537, 539},
         .drop_count = 5
-    }
+    },
+    {
+        .chestID = 691, 
+        .nama = "Peti Pusaka Surgawi", 
+        .rarity = 5, 
+        .price = 22000, 
+        .drop_item_ids = {560, 562, 563, 538, 520}, 
+        .drop_count = 5
+    },
 };
 
 const int JUMLAH_CHEST = sizeof(daftarChest) / sizeof(daftarChest[0]);

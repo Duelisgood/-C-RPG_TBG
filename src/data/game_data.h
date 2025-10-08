@@ -24,6 +24,8 @@ struct Player {
     int bonus_atk;
     int equipped_armor_id;
     int bonus_def;
+    int equipped_helmet_id; 
+    int bonus_hp;
     int skill_1_cd;
     int skill_2_cd;
     int active_skill_1_index;
