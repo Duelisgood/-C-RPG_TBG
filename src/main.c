@@ -3,11 +3,11 @@
 #include <stdlib.h> 
 #include <ctype.h>  
 #include <time.h>   
-#include "game_data.h"
-#include "game_data.h"     // Structs global
-#include "utilities.h"     // Fungsi dasar
-#include "player_manager.h" // Login, Save, Bag
-#include "combat.h"        // Explore, Fight
+
+#include "data/game_data.h" // Path diperbaiki
+#include "utilities.h"
+#include "player_manager.h"
+#include "combat.h"       // Explore, Fight
 #define MAX_INPUT 50
 
 void start_game(){

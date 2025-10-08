@@ -3,9 +3,15 @@
 #include <stdlib.h> 
 #include <ctype.h>  
 #include <time.h>   
-#include "game_data.h"
-#include "player_manager.h" 
-#include "utilities.h" 
+
+#include "combat.h" // Sertakan header diri sendiri
+#include "utilities.h"
+#include "player_manager.h"
+
+#include "data/game_data.h"
+#include "data/monster_data.h"
+#include "data/item_data.h"
+#include "data/skill_data.h"
 
 #define MAX_INPUT 50
 #define MAX_USERNAME 50

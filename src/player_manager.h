@@ -4,8 +4,7 @@
 
 
 // Diperlukan untuk mengakses struct Player dan Item
-#include "game_data.h" 
-#include "utilities.h"
+#include "data/game_data.h"
 
 
 // --- Prototipe Fungsi Player Management ---

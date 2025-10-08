@@ -2,8 +2,7 @@
 #ifndef COMBAT_H
 #define COMBAT_H
 
-#include "game_data.h" 
-
+struct Monster;
 // --- Prototipe Fungsi Pertarungan ---
 void explore();
 void start_fight(struct Monster musuh);

@@ -3,7 +3,7 @@
 #define UTILITIES_H
 
 // Perlu di-include untuk tipe struct Monster, Item, dan Player
-#include "game_data.h" 
+#include "data/game_data.h"
 
 // ==========================================================
 // I. FUNGSI UTILITAS DASAR (Definisi di utilities.c)
@@ -26,8 +26,8 @@ void handle_monster_loot_drop(int monster_rarity);
 // III. FUNGSI RANDOM & ENCOUNTER
 // ==========================================================
 int get_random_rarity();
-struct Monster get_random_monster_by_rarity(int required_rarity);
-struct Item get_random_item_by_rarity(int required_rarity);
+struct Monster get_random_monster_by_rarity(int required_rarity); // <-- TAMBAHKAN INI
+struct Item get_random_item_by_rarity(int required_rarity);       // <-- TAMBAHKAN INI
 struct Skill get_random_skill_by_rarity(int required_rarity);
 void drop_chest_key_by_rarity(int monster_rarity);
 void drop_skill_book_by_rarity(int monster_rarity); // <-- TAMBAHKAN INI
