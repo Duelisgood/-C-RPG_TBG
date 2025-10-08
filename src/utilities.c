@@ -4,6 +4,7 @@
 #include <ctype.h>  
 #include <time.h>   
 #include "game_data.h"
+#include "player_manager.h"
 #define MAX_INPUT 50
 #define MAX_USERNAME 50
 
@@ -201,4 +202,34 @@ struct Item get_random_item_by_rarity(int required_rarity) {
     
     // 3. Kembalikan item yang dipilih
     return daftarItem[final_item_index];
+}
+
+// File: utilities.c (Tambahkan di bagian paling bawah)
+
+void drop_chest_key_by_rarity(int monster_rarity) {
+    // Array sementara untuk menampung ID kunci yang cocok dengan rarity monster
+    int available_key_ids[JUMLAH_ITEM];
+    int count = 0;
+
+    // 1. Cari semua item dengan tipe "CHEST" dan rarity yang sesuai
+    for (int i = 0; i < JUMLAH_ITEM; i++) {
+        if (strcmp(daftarItem[i].type, "CHEST") == 0 && daftarItem[i].rarity == monster_rarity) {
+            available_key_ids[count] = daftarItem[i].itemID;
+            count++;
+        }
+    }
+
+    // 2. Jika ada kunci yang ditemukan, pilih satu secara acak
+    if (count > 0) {
+        int random_index = rand() % count;
+        int dropped_key_id = available_key_ids[random_index];
+        
+        // Dapatkan detail item kunci untuk menampilkan namanya
+        struct Item dropped_key = get_item_by_id(dropped_key_id);
+
+        // 3. Tambahkan kunci yang dipilih ke tas pemain
+        printf("\n[Loot Drop]: Monster menjatuhkan sebuah kunci: %s!\n", dropped_key.nama);
+        tambahkan_item_ke_bag(dropped_key_id, 1);
+    }
+    // Jika tidak ada kunci dengan rarity tersebut (count == 0), tidak terjadi apa-apa.
 }

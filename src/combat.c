@@ -17,6 +17,7 @@ void kembali_ke_main() {
     printf("\nAnda berhasil kabur dari pertarungan!\n");
 }
 
+
 void lakukan_pertarungan(struct Monster musuh) {
 
     char input[MAX_INPUT];
@@ -128,6 +129,8 @@ void lakukan_pertarungan(struct Monster musuh) {
             mainPlayer.GOLD += musuh_ptr->goldDrop;
             mainPlayer.XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
+
+            drop_chest_key_by_rarity(musuh_ptr->rarity);
 
             heal_to_max_hp();
             check_for_level_up();

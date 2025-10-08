@@ -253,8 +253,7 @@ void login_system() {
         // ... (Set stat dasar lainnya) ...
         
         // --- INISIALISASI INVENTORY ---
-        tambahkan_item_ke_bag(101, 1); 
-        tambahkan_item_ke_bag(103, 5); 
+        tambahkan_item_ke_bag(101, 1);  
         // -----------------------------
 
         mainPlayer.owned_skill_count = 0; 

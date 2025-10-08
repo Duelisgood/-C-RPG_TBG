@@ -33,5 +33,6 @@ struct Skill get_random_skill_by_rarity(int required_rarity);
 // IV. FUNGSI PERTARUNGAN
 // ==========================================================
 void heal_to_max_hp(); // Pemulihan setelah/selama pertarungan
+void drop_chest_key_by_rarity(int monster_rarity);
 
 #endif
