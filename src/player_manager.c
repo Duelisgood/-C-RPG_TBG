@@ -537,3 +537,143 @@ void learn_new_skill(int skill_id) {
         printf("\nSkill pouch penuh! Skill baru tidak dapat dipelajari.\n");
     }
 }
+
+struct Chest get_chest_by_id(int id);
+void remove_item_from_bag(int itemID, int quantity) {
+    // 1. Cari Item dalam Inventory
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        if (mainPlayer.inventory[i].itemID == itemID) {
+            
+            // 2. Cek apakah kuantitas cukup
+            if (mainPlayer.inventory[i].quantity >= quantity) {
+                mainPlayer.inventory[i].quantity -= quantity;
+                printf("[Sistem]: Mengurangi %s sebanyak %d.\n", 
+                       get_item_by_id(itemID).nama, quantity);
+                
+                // 3. Logika Penghapusan Slot jika kuantitas menjadi nol
+                if (mainPlayer.inventory[i].quantity == 0) {
+                    printf("[Sistem]: Item %s habis dan dihapus dari tas.\n", get_item_by_id(itemID).nama);
+                    
+                    for (int j = i; j < mainPlayer.inventory_count - 1; j++) {
+                        mainPlayer.inventory[j] = mainPlayer.inventory[j + 1];
+                    }
+                    mainPlayer.inventory_count--;
+                }
+                return;
+            } else {
+                printf("ERROR: Kuantitas %s tidak cukup.\n", get_item_by_id(itemID).nama);
+                return;
+            }
+        }
+    }
+    printf("ERROR: Item ID %d tidak ditemukan di tas.\n", itemID);
+}
+
+// Fungsi pembantu untuk mencari data Chest
+
+struct Chest get_chest_by_id(int id) {
+    // Akses global
+    for (int i = 0; i < JUMLAH_CHEST; i++) { 
+        if (daftarChest[i].chestID == id) {  
+            return daftarChest[i];
+        }
+    }
+    struct Chest empty = {0}; 
+    return empty;
+}
+
+void open_chest(int chest_item_id) {
+    
+    struct Item chest_item = get_item_by_id(chest_item_id);
+    if (strcmp(chest_item.type, "CHEST") != 0) return;
+
+    struct Chest chest_data = get_chest_by_id(chest_item.stat_boost); // Dapatkan data Chest
+    
+    if (chest_data.chestID == 0) {
+        printf("ERROR: Data peti tidak valid.\n");
+        return;
+    }
+
+    // 1. Kurangi Chest dari Inventory (Asumsi Player punya item Chest/Kunci ini)
+    remove_item_from_bag(chest_item_id, 1);
+    
+    printf("\n--- MEMBUKA %s ---\n", chest_data.nama);
+    
+    // 2. Tentukan Item Drop Acak
+    if (chest_data.drop_count > 0) {
+        
+        // Pilih indeks acak dalam batas drop_count (0 hingga drop_count - 1)
+        int random_drop_index = rand() % chest_data.drop_count;
+        
+        // Ambil Item ID yang dipilih dari array Chest
+        int dropped_item_id = chest_data.drop_item_ids[random_drop_index];
+        
+        // Dapatkan struct Item yang dijatuhkan
+        struct Item dropped_item_data = get_item_by_id(dropped_item_id);
+        
+        // 3. Tambahkan item yang dijatuhkan ke Inventory Player
+        tambahkan_item_ke_bag(dropped_item_id, 1);
+        
+        printf("  [Drop]: Anda mendapatkan %s (Rarity %d)!\n", 
+               dropped_item_data.nama, dropped_item_data.rarity);
+    } else {
+        printf("Peti ini kosong!\n");
+    }
+
+    save_game_data(); 
+}
+
+// Tambahkan kode ini di dalam file: src/player_manager.c
+
+void open_chest_menu() {
+    printf("\n--- BUKA PETI ---\n");
+    printf("Pilih peti dari inventory Anda untuk dibuka.\n");
+
+    // 1. Cek dan tampilkan item tipe CHEST yang dimiliki pemain
+    int chest_count = 0;
+    printf("Peti yang Anda miliki:\n");
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        // Dapatkan detail item dari ID yang ada di tas
+        struct Item item_di_tas = get_item_by_id(mainPlayer.inventory[i].itemID);
+        // Cek apakah tipenya "CHEST"
+        if (strcmp(item_di_tas.type, "CHEST") == 0) {
+            printf("  ID: %d | %s (Jumlah: %d)\n",
+                   item_di_tas.itemID, item_di_tas.nama, mainPlayer.inventory[i].quantity);
+            chest_count++;
+        }
+    }
+
+    // 2. Jika tidak ada peti sama sekali, keluar dari fungsi
+    if (chest_count == 0) {
+        printf("Anda tidak memiliki kunci atau peti untuk dibuka.\n");
+        return;
+    }
+
+    // 3. Minta input dari pemain
+    int input_id;
+    printf("\nMasukkan ID Peti/Kunci yang ingin digunakan (atau 0 untuk batal): ");
+    if (scanf("%d", &input_id) != 1) {
+        printf("Input tidak valid. Harap masukkan angka.\n");
+        while (getchar() != '\n'); // Bersihkan buffer input jika input bukan angka
+        return;
+    }
+    while (getchar() != '\n'); // Selalu bersihkan sisa buffer setelah scanf
+
+    if (input_id == 0) {
+        printf("Membatalkan membuka peti.\n");
+        return;
+    }
+
+    // 4. Validasi input dan panggil fungsi open_chest
+    if (is_item_in_inventory(input_id) > 0) {
+        struct Item item_pilihan = get_item_by_id(input_id);
+        if (strcmp(item_pilihan.type, "CHEST") == 0) {
+            // Panggil fungsi open_chest yang sudah ada dengan ID pilihan pemain
+            open_chest(input_id);
+        } else {
+            printf("ERROR: Item dengan ID %d bukan merupakan peti atau kunci.\n", input_id);
+        }
+    } else {
+        printf("ERROR: Anda tidak memiliki item dengan ID %d di tas Anda.\n", input_id);
+    }
+}

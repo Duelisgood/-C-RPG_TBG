@@ -9,7 +9,7 @@ struct Item daftarItem[] = {
     {.itemID = 105, .nama = "Dagger Tumpul", .harga = 75, .rarity = 1, .type = "WEAPON", .stat_boost = 3 },
     {.itemID = 120, .nama = "Rompi Kain", .harga = 40, .rarity = 1, .type = "ARMOR", .stat_boost = 2 },
     {.itemID = 125, .nama = "Perisai Kayu", .harga = 60, .rarity = 1, .type = "ARMOR", .stat_boost = 3 },
-    {.itemID = 103, .nama = "Ramuan Kecil", .harga = 25, .rarity = 1, .type = "CONSUMABLE", .stat_boost = 0 },
+    {.itemID = 103, .nama = "Kunci Peti", .harga = 25, .rarity = 1, .type = "CHEST", .stat_boost = 601},
 
 // =================================================================
 // ============== RARITY 2 (TIDAK UMUM) - ATK/DEF +4 hingga +7 =====
@@ -161,3 +161,27 @@ struct Skill daftarSkill[] = {
 };
 
 const int JUMLAH_SKILL = sizeof(daftarSkill) / sizeof(daftarSkill[0]);
+
+struct Chest daftarChest[] = {
+    // Peti Kayu Tua (Tier 1: Drop item umum)
+    {
+        .chestID = 601, 
+        .nama = "Peti Kayu Tua", 
+        .rarity = 1, 
+        .price = 100, 
+        .drop_item_ids = {101, 105, 120, 103, 0}, // ID Pedang Kayu, Dagger, Rompi, Ramuan
+        .drop_count = 4 // Hanya 4 item yang valid
+    },
+    
+    // Kotak Emas Terkunci (Tier 3: Drop item langka)
+    {
+        .chestID = 602, 
+        .nama = "Kotak Emas Terkunci", 
+        .rarity = 3, 
+        .price = 500, 
+        .drop_item_ids = {301, 305, 320, 425, 0}, // ID Great Axe, Katana, Steel Plate, Shield of Aegis
+        .drop_count = 4
+    }
+};
+
+const int JUMLAH_CHEST = sizeof(daftarChest) / sizeof(daftarChest[0]);

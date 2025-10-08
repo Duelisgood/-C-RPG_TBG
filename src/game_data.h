@@ -4,7 +4,17 @@
 #define MAX_INVENTORY_SLOTS 50
 #define MAX_SKILLS_OWNED 10
 
+#define MAX_CHEST_DROPS 5 // Maksimal 5 jenis item yang bisa dijatuhkan satu peti
 
+// Definisi Struct baru untuk Loot Box/Chest
+struct Chest {
+    int chestID;
+    char nama[MAX_NAMA];
+    int rarity;      
+    int price;      
+    int drop_item_ids[MAX_CHEST_DROPS]; 
+    int drop_count; 
+};
 // Definisi Struktur untuk Item
 struct Item {
     int itemID;
@@ -74,6 +84,9 @@ struct Player {
 
 
 // [Deklarasi Global]
+extern struct Chest daftarChest[];
+extern const int JUMLAH_CHEST;
+
 extern struct Player mainPlayer; 
 
 extern struct Skill daftarSkill[];

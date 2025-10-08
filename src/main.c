@@ -36,10 +36,13 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "USE_EQUIPMENT") == 0) {
             use_equipment(); 
         }
-        else if (strcmp(aksiPengguna, "USE_SKILL") == 0) {
+        else if (strcmp(aksiPengguna, "change_SKILL") == 0) {
             change_skill(); 
             while (getchar() != '\n' && getchar() != EOF); 
         }  
+        else if (strcmp(aksiPengguna, "OPEN_CHEST") == 0) { // <-- COMMAND BARU
+            open_chest_menu(); // <-- Panggil fungsi menu chest baru
+        }
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 

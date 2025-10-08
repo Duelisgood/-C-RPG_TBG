@@ -113,6 +113,7 @@ void help(){
     printf("BAG\n");
     printf("USE_EQUIPMENT\n");
     printf("USE_SKILL\n");
+    printf("OPEN_CHEST\n");
     printf("QUIT\n");
     printf("HELP\n");
     printf("CLS\n");

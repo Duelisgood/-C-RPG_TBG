@@ -16,6 +16,8 @@ void check_for_level_up();
 
 // Fungsi Item dan Skill
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah);
+void remove_item_from_bag(int itemID, int quantity);
+void open_chest_menu();
 void learn_new_skill(int skill_id);
 void use_equipment();
 void change_skill();
@@ -24,6 +26,7 @@ void change_skill();
 void bag();
 void help(); // Asumsi fungsi help() diletakkan di Player Manager/Utilities
 void apply_stat_boosts();
+
 
 
 #endif
