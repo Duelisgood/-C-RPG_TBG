@@ -130,7 +130,7 @@ void lakukan_pertarungan(struct Monster musuh) {
             mainPlayer.XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
 
-            drop_chest_key_by_rarity(musuh_ptr->rarity);
+            handle_monster_loot_drop(musuh_ptr->rarity); 
 
             heal_to_max_hp();
             check_for_level_up();
@@ -145,10 +145,27 @@ void lakukan_pertarungan(struct Monster musuh) {
         }
 
         if (mainPlayer.HP <= 0) {
-            printf("\n!!! Anda dikalahkan oleh %s. GAME OVER.\n", musuh_ptr->nama);
-            // Tambahkan logika Game Over di sini
-            // Sebaiknya panggil save_game_data() di sini jika Anda ingin menyimpan status (HP=0)
-            return;
+            printf("\n!!! Anda dikalahkan oleh %s! ---\n", musuh_ptr->nama);
+
+            // Penalti: Kehilangan 10% Gold
+            int gold_loss = mainPlayer.GOLD * 0.10;
+            if (gold_loss < 1 && mainPlayer.GOLD > 0) {
+                gold_loss = 1; // Kehilangan minimal 1 gold jika punya
+            }
+            mainPlayer.GOLD -= gold_loss;
+            if (mainPlayer.GOLD < 0) {
+                mainPlayer.GOLD = 0;
+            }
+            printf("Anda kehilangan %d Gold.\n", gold_loss);
+
+            // Pulihkan HP pemain agar bisa melanjutkan permainan
+            heal_to_max_hp();
+            
+            // Simpan status setelah kekalahan (HP penuh, Gold berkurang)
+            save_game_data();
+
+            printf("Anda kembali ke kota untuk memulihkan diri...\n");
+            return; // Keluar dari pertarungan
         }
     } // Akhir dari while loop pertarungan
 } // Akhir dari fungsi l

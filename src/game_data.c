@@ -26,7 +26,9 @@ struct Item daftarItem[] = {
     {.itemID = 703, .nama = "Kunci Kotak Goblin", .harga = 20, .rarity = 1, .type = "CHEST", .stat_boost = 603},
     {.itemID = 704, .nama = "Kunci Ransel Pengelana", .harga = 30, .rarity = 1, .type = "CHEST", .stat_boost = 604},
     {.itemID = 705, .nama = "Kunci Simpanan Bandit", .harga = 35, .rarity = 1, .type = "CHEST", .stat_boost = 605},
-
+    // -- Book --
+    {.itemID = 80, .nama = "Buku Teknik Dasar", .harga = 150, .rarity = 1, .type = "BOOK", .stat_boost = 801},
+    {.itemID = 83, .nama = "Catatan Pertolongan Pertama", .harga = 160, .rarity = 1, .type = "BOOK", .stat_boost = 802},
 
 // =================================================================
 // ============== RARITY 2 (TIDAK UMUM) - ATK/DEF +4 hingga +7 =====
@@ -51,7 +53,9 @@ struct Item daftarItem[] = {
     {.itemID = 713, .nama = "Kunci Peti Prajurit", .harga = 80, .rarity = 2, .type = "CHEST", .stat_boost = 613},
     {.itemID = 714, .nama = "Kunci Kotak Persenjataan", .harga = 70, .rarity = 2, .type = "CHEST", .stat_boost = 614},
     {.itemID = 715, .nama = "Kunci Warisan Terlupakan", .harga = 100, .rarity = 2, .type = "CHEST", .stat_boost = 615},
-    
+    // -- Book --
+    {.itemID = 84, .nama = "Manual Taktik Ranger", .harga = 500, .rarity = 2, .type = "BOOK", .stat_boost = 811},
+    {.itemID = 85, .nama = "Ajaran Pelindung Suci", .harga = 550, .rarity = 2, .type = "BOOK", .stat_boost = 812},
 
 // =================================================================
 // ============== RARITY 3 (LANGKA) - ATK/DEF +8 hingga +12 ========
@@ -77,6 +81,9 @@ struct Item daftarItem[] = {
     {.itemID = 723, .nama = "Kunci Harta Karun Orc", .harga = 180, .rarity = 3, .type = "CHEST", .stat_boost = 623},
     {.itemID = 724, .nama = "Kunci Simpanan Ksatria", .harga = 220, .rarity = 3, .type = "CHEST", .stat_boost = 624},
     {.itemID = 725, .nama = "Kunci Relik Reruntuhan", .harga = 230, .rarity = 3, .type = "CHEST", .stat_boost = 625},
+    // -- Book --
+    {.itemID = 81, .nama = "Codex Prajurit", .harga = 1200, .rarity = 3, .type = "BOOK", .stat_boost = 821},
+    {.itemID = 86, .nama = "Buku Mantra Alam", .harga = 1300, .rarity = 3, .type = "BOOK", .stat_boost = 822},
 
 
 // =================================================================
@@ -103,6 +110,10 @@ struct Item daftarItem[] = {
     {.itemID = 733, .nama = "Kunci Ahli Sihir", .harga = 700, .rarity = 4, .type = "CHEST", .stat_boost = 633},
     {.itemID = 734, .nama = "Kunci Dwarven", .harga = 800, .rarity = 4, .type = "CHEST", .stat_boost = 634},
     {.itemID = 735, .nama = "Kunci Kuil Kuno", .harga = 900, .rarity = 4, .type = "CHEST", .stat_boost = 635},
+    // -- Book --
+    {.itemID = 87, .nama = "Ensiklopedia Sihir Penghancur", .harga = 4000, .rarity = 4, .type = "BOOK", .stat_boost = 831},
+    {.itemID = 88, .nama = "Kitab Pemulihan Agung", .harga = 4200, .rarity = 4, .type = "BOOK", .stat_boost = 832},
+
 
 // =================================================================
 // ============== RARITY 5 (LEGENDARY) - ATK/DEF +25 hingga +40 ====
@@ -128,6 +139,9 @@ struct Item daftarItem[] = {
     {.itemID = 743, .nama = "Kunci Obsidian", .harga = 3000, .rarity = 5, .type = "CHEST", .stat_boost = 643},
     {.itemID = 744, .nama = "Kunci Raja Iblis", .harga = 5000, .rarity = 5, .type = "CHEST", .stat_boost = 644},
     {.itemID = 745, .nama = "Kunci Takdir", .harga = 6000, .rarity = 5, .type = "CHEST", .stat_boost = 645},
+    // -- Book --
+    {.itemID = 82, .nama = "Grimoire Terlarang", .harga = 30000, .rarity = 5, .type = "BOOK", .stat_boost = 841},
+    {.itemID = 89, .nama = "Gulungan Keajaiban", .harga = 32000, .rarity = 5, .type = "BOOK", .stat_boost = 842},
 };
 
 
@@ -211,38 +225,93 @@ const int JUMLAH_MONSTER = sizeof(daftarMonster) / sizeof(daftarMonster[0]);
 
 struct Skill daftarSkill[] = {
 // =================================================================
-// ============== RARITY 1 (ID 101 - 105) - DASAR =================
+// ============== RARITY 1 (ID 101 - 113) - DASAR ==================
 // =================================================================
     {.skillID = 101, .nama = "Quick Stab", .cooldown_max = 2, .rarity = 1, .effect_type = "ATTACK", .effect_value = 3},
-    {.skillID = 102, .nama = "Minor Heal", .cooldown_max = 3, .rarity = 1, .effect_type = "HEAL", .effect_value = 5}, // Mirip Minor Heal lama
+    {.skillID = 102, .nama = "Minor Heal", .cooldown_max = 3, .rarity = 1, .effect_type = "HEAL", .effect_value = 5},
     {.skillID = 103, .nama = "Deflect", .cooldown_max = 2, .rarity = 1, .effect_type = "HEAL", .effect_value = 4},
-    
-// =================================================================
-// ============== RARITY 2 (ID 201 - 205) - STANDAR ===============
-// =================================================================
-    {.skillID = 201, .nama = "Power Slash", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 7}, // Mirip Power Slash lama
-    {.skillID = 202, .nama = "First Aid", .cooldown_max = 4, .rarity = 2, .effect_type = "HEAL", .effect_value = 10}, // Mirip Defense Stance lama
-    {.skillID = 203, .nama = "Quick Shot", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 6},
+    // -- 10 SKILL BARU RARITY 1 --
+    {.skillID = 104, .nama = "Bash", .cooldown_max = 3, .rarity = 1, .effect_type = "ATTACK", .effect_value = 4},
+    {.skillID = 105, .nama = "Mend Wound", .cooldown_max = 4, .rarity = 1, .effect_type = "HEAL", .effect_value = 6},
+    {.skillID = 106, .nama = "Throw Rock", .cooldown_max = 2, .rarity = 1, .effect_type = "ATTACK", .effect_value = 2},
+    {.skillID = 107, .nama = "Guard", .cooldown_max = 3, .rarity = 1, .effect_type = "HEAL", .effect_value = 5},
+    {.skillID = 108, .nama = "Trip", .cooldown_max = 2, .rarity = 1, .effect_type = "ATTACK", .effect_value = 1},
+    {.skillID = 109, .nama = "Rally", .cooldown_max = 4, .rarity = 1, .effect_type = "HEAL", .effect_value = 7},
+    {.skillID = 110, .nama = "Headbutt", .cooldown_max = 3, .rarity = 1, .effect_type = "ATTACK", .effect_value = 4},
+    {.skillID = 111, .nama = "Patch Up", .cooldown_max = 3, .rarity = 1, .effect_type = "HEAL", .effect_value = 6},
+    {.skillID = 112, .nama = "Simple Shot", .cooldown_max = 2, .rarity = 1, .effect_type = "ATTACK", .effect_value = 3},
+    {.skillID = 113, .nama = "Encourage", .cooldown_max = 4, .rarity = 1, .effect_type = "HEAL", .effect_value = 5},
 
 // =================================================================
-// ============== RARITY 3 (ID 301 - 305) - KUAT ==================
+// ============== RARITY 2 (ID 201 - 213) - STANDAR ===============
+// =================================================================
+    {.skillID = 201, .nama = "Power Slash", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 7},
+    {.skillID = 202, .nama = "First Aid", .cooldown_max = 4, .rarity = 2, .effect_type = "HEAL", .effect_value = 10},
+    {.skillID = 203, .nama = "Quick Shot", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 6},
+    // -- 10 SKILL BARU RARITY 2 --
+    {.skillID = 204, .nama = "Shield Bash", .cooldown_max = 4, .rarity = 2, .effect_type = "ATTACK", .effect_value = 8},
+    {.skillID = 205, .nama = "Healing Light", .cooldown_max = 5, .rarity = 2, .effect_type = "HEAL", .effect_value = 12},
+    {.skillID = 206, .nama = "Fire Dart", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 9},
+    {.skillID = 207, .nama = "Stone Skin", .cooldown_max = 4, .rarity = 2, .effect_type = "HEAL", .effect_value = 11},
+    {.skillID = 208, .nama = "Aimed Shot", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 8},
+    {.skillID = 209, .nama = "Soothing Mist", .cooldown_max = 5, .rarity = 2, .effect_type = "HEAL", .effect_value = 14},
+    {.skillID = 210, .nama = "Double Strike", .cooldown_max = 4, .rarity = 2, .effect_type = "ATTACK", .effect_value = 10},
+    {.skillID = 211, .nama = "Protective Ward", .cooldown_max = 5, .rarity = 2, .effect_type = "HEAL", .effect_value = 13},
+    {.skillID = 212, .nama = "Hamstring", .cooldown_max = 3, .rarity = 2, .effect_type = "ATTACK", .effect_value = 7},
+    {.skillID = 213, .nama = "Cure Wounds", .cooldown_max = 4, .rarity = 2, .effect_type = "HEAL", .effect_value = 12},
+
+// =================================================================
+// ============== RARITY 3 (ID 301 - 313) - KUAT ===================
 // =================================================================
     {.skillID = 301, .nama = "Wild Swing", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 15},
     {.skillID = 302, .nama = "Regenerate", .cooldown_max = 5, .rarity = 3, .effect_type = "HEAL", .effect_value = 18},
     {.skillID = 303, .nama = "Shadow Strike", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 12},
+    // -- 10 SKILL BARU RARITY 3 --
+    {.skillID = 304, .nama = "Whirlwind", .cooldown_max = 5, .rarity = 3, .effect_type = "ATTACK", .effect_value = 16},
+    {.skillID = 305, .nama = "Greater Heal", .cooldown_max = 6, .rarity = 3, .effect_type = "HEAL", .effect_value = 20},
+    {.skillID = 306, .nama = "Ice Shard", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 14},
+    {.skillID = 307, .nama = "Iron Will", .cooldown_max = 5, .rarity = 3, .effect_type = "HEAL", .effect_value = 19},
+    {.skillID = 308, .nama = "Poison Stab", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 13},
+    {.skillID = 309, .nama = "Blessing", .cooldown_max = 6, .rarity = 3, .effect_type = "HEAL", .effect_value = 22},
+    {.skillID = 310, .nama = "Sunder Armor", .cooldown_max = 5, .rarity = 3, .effect_type = "ATTACK", .effect_value = 17},
+    {.skillID = 311, .nama = "Rejuvenation", .cooldown_max = 6, .rarity = 3, .effect_type = "HEAL", .effect_value = 21},
+    {.skillID = 312, .nama = "Cleave", .cooldown_max = 4, .rarity = 3, .effect_type = "ATTACK", .effect_value = 15},
+    {.skillID = 313, .nama = "Holy Light", .cooldown_max = 5, .rarity = 3, .effect_type = "HEAL", .effect_value = 20},
 
 // =================================================================
-// ============== RARITY 4 (ID 401 - 405) - ELITE =================
+// ============== RARITY 4 (ID 401 - 413) - ELITE ==================
 // =================================================================
     {.skillID = 401, .nama = "Critical Focus", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 25},
     {.skillID = 402, .nama = "Mass Healing", .cooldown_max = 6, .rarity = 4, .effect_type = "HEAL", .effect_value = 30},
-    {.skillID = 403, .nama = "Triple Shot", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 20}, // Mirip Triple Shot lama
+    {.skillID = 403, .nama = "Triple Shot", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 20},
+    // -- 10 SKILL BARU RARITY 4 --
+    {.skillID = 404, .nama = "Fireball", .cooldown_max = 6, .rarity = 4, .effect_type = "ATTACK", .effect_value = 28},
+    {.skillID = 405, .nama = "Sanctuary", .cooldown_max = 7, .rarity = 4, .effect_type = "HEAL", .effect_value = 35},
+    {.skillID = 406, .nama = "Thunder Strike", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 26},
+    {.skillID = 407, .nama = "Barrier", .cooldown_max = 6, .rarity = 4, .effect_type = "HEAL", .effect_value = 32},
+    {.skillID = 408, .nama = "Vanish", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 22},
+    {.skillID = 409, .nama = "Circle of Healing", .cooldown_max = 7, .rarity = 4, .effect_type = "HEAL", .effect_value = 38},
+    {.skillID = 410, .nama = "Explosive Arrow", .cooldown_max = 6, .rarity = 4, .effect_type = "ATTACK", .effect_value = 30},
+    {.skillID = 411, .nama = "Aegis", .cooldown_max = 7, .rarity = 4, .effect_type = "HEAL", .effect_value = 36},
+    {.skillID = 412, .nama = "Blade Dance", .cooldown_max = 5, .rarity = 4, .effect_type = "ATTACK", .effect_value = 27},
+    {.skillID = 413, .nama = "Restoration", .cooldown_max = 6, .rarity = 4, .effect_type = "HEAL", .effect_value = 34},
 
 // =================================================================
-// ============== RARITY 5 (ID 501 - 505) - ULTIMATE ==============
+// ============== RARITY 5 (ID 501 - 512) - ULTIMATE ===============
 // =================================================================
     {.skillID = 501, .nama = "Execute", .cooldown_max = 7, .rarity = 5, .effect_type = "ATTACK", .effect_value = 45},
-    {.skillID = 502, .nama = "Emergency Mend", .cooldown_max = 9, .rarity = 5, .effect_type = "HEAL", .effect_value = 50} // Mirip Emergency Mend lama
+    {.skillID = 502, .nama = "Emergency Mend", .cooldown_max = 9, .rarity = 5, .effect_type = "HEAL", .effect_value = 50},
+    // -- 10 SKILL BARU RARITY 5 --
+    {.skillID = 503, .nama = "Meteor Shower", .cooldown_max = 8, .rarity = 5, .effect_type = "ATTACK", .effect_value = 55},
+    {.skillID = 504, .nama = "Divine Intervention", .cooldown_max = 10, .rarity = 5, .effect_type = "HEAL", .effect_value = 70},
+    {.skillID = 505, .nama = "Dragon's Breath", .cooldown_max = 7, .rarity = 5, .effect_type = "ATTACK", .effect_value = 50},
+    {.skillID = 506, .nama = "Final Stand", .cooldown_max = 9, .rarity = 5, .effect_type = "HEAL", .effect_value = 65},
+    {.skillID = 507, .nama = "Soul Rip", .cooldown_max = 8, .rarity = 5, .effect_type = "ATTACK", .effect_value = 48},
+    {.skillID = 508, .nama = "Phoenix Down", .cooldown_max = 10, .rarity = 5, .effect_type = "HEAL", .effect_value = 80},
+    {.skillID = 509, .nama = "Annihilation", .cooldown_max = 7, .rarity = 5, .effect_type = "ATTACK", .effect_value = 60},
+    {.skillID = 510, .nama = "Tree of Life", .cooldown_max = 9, .rarity = 5, .effect_type = "HEAL", .effect_value = 75},
+    {.skillID = 511, .nama = "Obliterate", .cooldown_max = 8, .rarity = 5, .effect_type = "ATTACK", .effect_value = 58},
+    {.skillID = 512, .nama = "Miracle", .cooldown_max = 10, .rarity = 5, .effect_type = "HEAL", .effect_value = 90}
 };
 
 const int JUMLAH_SKILL = sizeof(daftarSkill) / sizeof(daftarSkill[0]);
@@ -475,3 +544,80 @@ struct Chest daftarChest[] = {
 };
 
 const int JUMLAH_CHEST = sizeof(daftarChest) / sizeof(daftarChest[0]);
+
+// File: game_data.c
+
+// (Tambahkan di dekat daftar global lainnya)
+struct SkillBook daftarSkillBook[] = {
+    // =================================================================
+    // ====================== RARITY 1 BOOKS ===========================
+    // =================================================================
+    {
+        .bookID = 801, .nama = "Buku Teknik Dasar", .rarity = 1,
+        .drop_skill_ids = {101, 104, 110, 112}, // Quick Stab, Bash, Headbutt, Simple Shot
+        .drop_count = 4
+    },
+    {
+        .bookID = 802, .nama = "Catatan Pertolongan Pertama", .rarity = 1,
+        .drop_skill_ids = {102, 103, 105, 111}, // Minor Heal, Deflect, Mend Wound, Patch Up
+        .drop_count = 4
+    },
+
+    // =================================================================
+    // ====================== RARITY 2 BOOKS ===========================
+    // =================================================================
+    {
+        .bookID = 811, .nama = "Manual Taktik Ranger", .rarity = 2,
+        .drop_skill_ids = {203, 208, 210, 212}, // Quick Shot, Aimed Shot, Double Strike, Hamstring
+        .drop_count = 4
+    },
+    {
+        .bookID = 812, .nama = "Ajaran Pelindung Suci", .rarity = 2,
+        .drop_skill_ids = {202, 205, 207, 211}, // First Aid, Healing Light, Stone Skin, Protective Ward
+        .drop_count = 4
+    },
+
+    // =================================================================
+    // ====================== RARITY 3 BOOKS ===========================
+    // =================================================================
+    {
+        .bookID = 821, .nama = "Codex Prajurit", .rarity = 3,
+        .drop_skill_ids = {301, 303, 310, 312}, // Wild Swing, Shadow Strike, Sunder Armor, Cleave
+        .drop_count = 4
+    },
+    {
+        .bookID = 822, .nama = "Buku Mantra Alam", .rarity = 3,
+        .drop_skill_ids = {302, 305, 309, 313}, // Regenerate, Greater Heal, Blessing, Holy Light
+        .drop_count = 4
+    },
+
+    // =================================================================
+    // ====================== RARITY 4 BOOKS ===========================
+    // =================================================================
+    {
+        .bookID = 831, .nama = "Ensiklopedia Sihir Penghancur", .rarity = 4,
+        .drop_skill_ids = {401, 404, 406, 410}, // Critical Focus, Fireball, Thunder Strike, Explosive Arrow
+        .drop_count = 4
+    },
+    {
+        .bookID = 832, .nama = "Kitab Pemulihan Agung", .rarity = 4,
+        .drop_skill_ids = {402, 405, 409, 411}, // Mass Healing, Sanctuary, Circle of Healing, Aegis
+        .drop_count = 4
+    },
+
+    // =================================================================
+    // ====================== RARITY 5 BOOKS ===========================
+    // =================================================================
+    {
+        .bookID = 841, .nama = "Grimoire Terlarang", .rarity = 5,
+        .drop_skill_ids = {501, 503, 507, 509}, // Execute, Meteor Shower, Soul Rip, Annihilation
+        .drop_count = 4
+    },
+    {
+        .bookID = 842, .nama = "Gulungan Keajaiban", .rarity = 5,
+        .drop_skill_ids = {502, 504, 508, 512}, // Emergency Mend, Divine Intervention, Phoenix Down, Miracle
+        .drop_count = 4
+    }
+};
+
+const int JUMLAH_SKILLBOOK = sizeof(daftarSkillBook) / sizeof(daftarSkillBook[0]);

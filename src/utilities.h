@@ -20,6 +20,7 @@ void apply_stat_boosts();        // BARU: Kalkulasi stat total Player
 struct Item get_item_by_id(int id);
 struct Skill get_skill_by_id(int id); // BARU: Untuk mengambil data skill
 int is_item_in_inventory(int itemID);
+void handle_monster_loot_drop(int monster_rarity);
 
 // ==========================================================
 // III. FUNGSI RANDOM & ENCOUNTER
@@ -28,6 +29,8 @@ int get_random_rarity();
 struct Monster get_random_monster_by_rarity(int required_rarity);
 struct Item get_random_item_by_rarity(int required_rarity);
 struct Skill get_random_skill_by_rarity(int required_rarity);
+void drop_chest_key_by_rarity(int monster_rarity);
+void drop_skill_book_by_rarity(int monster_rarity); // <-- TAMBAHKAN INI
 
 // ==========================================================
 // IV. FUNGSI PERTARUNGAN

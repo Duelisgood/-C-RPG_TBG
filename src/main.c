@@ -43,6 +43,9 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "OPEN_CHEST") == 0) { // <-- COMMAND BARU
             open_chest_menu(); // <-- Panggil fungsi menu chest baru
         }
+        else if (strcmp(aksiPengguna, "LEARN") == 0) { // <-- TAMBAHKAN BLOK INI
+        learn_skill_menu();
+        }
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 

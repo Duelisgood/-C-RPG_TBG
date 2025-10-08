@@ -26,6 +26,7 @@ void change_skill();
 void bag();
 void help(); // Asumsi fungsi help() diletakkan di Player Manager/Utilities
 void apply_stat_boosts();
+void learn_skill_menu(); 
 
 
 

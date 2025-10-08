@@ -113,8 +113,9 @@ void help(){
     printf("EXPLORE\n");
     printf("BAG\n");
     printf("USE_EQUIPMENT\n");
-    printf("USE_SKILL\n");
+    printf("CHANGE_SKILL\n"); 
     printf("OPEN_CHEST\n");
+    printf("LEARN\n"); 
     printf("QUIT\n");
     printf("HELP\n");
     printf("CLS\n");
@@ -232,4 +233,44 @@ void drop_chest_key_by_rarity(int monster_rarity) {
         tambahkan_item_ke_bag(dropped_key_id, 1);
     }
     // Jika tidak ada kunci dengan rarity tersebut (count == 0), tidak terjadi apa-apa.
+}
+
+// File: utilities.c (Tambahkan di bagian bawah)
+
+void drop_skill_book_by_rarity(int monster_rarity) {
+    // Array sementara untuk menampung ID buku yang cocok
+    int available_book_ids[JUMLAH_ITEM];
+    int count = 0;
+
+    // 1. Cari semua item dengan tipe "BOOK" dan rarity yang sesuai
+    for (int i = 0; i < JUMLAH_ITEM; i++) {
+        if (strcmp(daftarItem[i].type, "BOOK") == 0 && daftarItem[i].rarity == monster_rarity) {
+            available_book_ids[count] = daftarItem[i].itemID;
+            count++;
+        }
+    }
+
+    // 2. Jika ada buku yang ditemukan, pilih satu secara acak
+    if (count > 0) {
+        int random_index = rand() % count;
+        int dropped_book_id = available_book_ids[random_index];
+        
+        struct Item dropped_book = get_item_by_id(dropped_book_id);
+
+        printf("\n[Loot Drop]: Monster menjatuhkan sebuah buku: %s!\n", dropped_book.nama);
+        tambahkan_item_ke_bag(dropped_book_id, 1);
+    }
+    // Jika tidak ada buku dengan rarity tersebut, tidak terjadi apa-apa
+}
+
+void handle_monster_loot_drop(int monster_rarity) {
+    int roll = rand() % 100; // Menghasilkan angka acak dari 0 hingga 99
+
+    if (roll < 50) {
+        // 50% kemungkinan (0-49): Drop Kunci Peti (Loot Box)
+        drop_chest_key_by_rarity(monster_rarity);
+    } else {
+        // 50% kemungkinan (50-99): Drop Buku Skill
+        drop_skill_book_by_rarity(monster_rarity);
+    }
 }

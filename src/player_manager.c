@@ -676,3 +676,96 @@ void open_chest_menu() {
         printf("ERROR: Anda tidak memiliki item dengan ID %d di tas Anda.\n", input_id);
     }
 }
+
+// File: player_manager.c (Tambahkan di bagian bawah)
+
+// Fungsi pembantu untuk mencari data SkillBook berdasarkan ID-nya
+struct SkillBook get_skillbook_by_id(int id) {
+    for (int i = 0; i < JUMLAH_SKILLBOOK; i++) {
+        if (daftarSkillBook[i].bookID == id) {
+            return daftarSkillBook[i];
+        }
+    }
+    struct SkillBook empty = {0};
+    return empty;
+}
+
+// Fungsi inti untuk memproses pembelajaran skill dari buku
+void learn_from_book(int book_item_id) {
+    struct Item book_item = get_item_by_id(book_item_id);
+    if (strcmp(book_item.type, "BOOK") != 0) return; // Keamanan
+
+    // Ambil data buku dari stat_boost item
+    struct SkillBook book_data = get_skillbook_by_id(book_item.stat_boost);
+
+    if (book_data.bookID == 0) {
+        printf("ERROR: Data buku tidak valid.\n");
+        return;
+    }
+
+    // 1. Kurangi buku dari inventory
+    remove_item_from_bag(book_item_id, 1);
+
+    printf("\n--- Membaca %s ---\n", book_data.nama);
+
+    // 2. Tentukan Skill Drop secara acak
+    if (book_data.drop_count > 0) {
+        int random_drop_index = rand() % book_data.drop_count;
+        int dropped_skill_id = book_data.drop_skill_ids[random_drop_index];
+
+        // 3. Panggil fungsi learn_new_skill yang sudah ada
+        learn_new_skill(dropped_skill_id);
+
+    } else {
+        printf("Buku ini ternyata kosong dan tidak berisi apa-apa!\n");
+    }
+
+    save_game_data();
+}
+
+// Fungsi menu interaktif untuk pemain
+void learn_skill_menu() {
+    printf("\n--- BELAJAR DARI BUKU ---\n");
+    printf("Pilih buku dari inventory Anda untuk dipelajari.\n");
+
+    int book_count = 0;
+    printf("Buku yang Anda miliki:\n");
+    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        struct Item item_di_tas = get_item_by_id(mainPlayer.inventory[i].itemID);
+        if (strcmp(item_di_tas.type, "BOOK") == 0) {
+            printf("  ID: %d | %s (Jumlah: %d)\n",
+                   item_di_tas.itemID, item_di_tas.nama, mainPlayer.inventory[i].quantity);
+            book_count++;
+        }
+    }
+
+    if (book_count == 0) {
+        printf("Anda tidak memiliki buku untuk dipelajari.\n");
+        return;
+    }
+
+    int input_id;
+    printf("\nMasukkan ID Buku yang ingin digunakan (atau 0 untuk batal): ");
+    if (scanf("%d", &input_id) != 1) {
+        printf("Input tidak valid.\n");
+        while (getchar() != '\n');
+        return;
+    }
+    while (getchar() != '\n');
+
+    if (input_id == 0) {
+        printf("Batal mempelajari buku.\n");
+        return;
+    }
+
+    if (is_item_in_inventory(input_id) > 0) {
+        struct Item item_pilihan = get_item_by_id(input_id);
+        if (strcmp(item_pilihan.type, "BOOK") == 0) {
+            learn_from_book(input_id);
+        } else {
+            printf("ERROR: Item dengan ID %d bukan sebuah buku.\n", input_id);
+        }
+    } else {
+        printf("ERROR: Anda tidak memiliki item dengan ID %d di tas Anda.\n", input_id);
+    }
+}

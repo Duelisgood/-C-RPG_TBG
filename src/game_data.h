@@ -3,7 +3,7 @@
 #define MAX_NAMA 50
 #define MAX_INVENTORY_SLOTS 50
 #define MAX_SKILLS_OWNED 10
-
+#define MAX_SKILL_DROPS 4
 #define MAX_CHEST_DROPS 5 // Maksimal 5 jenis item yang bisa dijatuhkan satu peti
 
 // Definisi Struct baru untuk Loot Box/Chest
@@ -81,6 +81,17 @@ struct Player {
     int owned_skill_ids[MAX_SKILLS_OWNED]; // Array ID Skill yang dimiliki (misal: {101, 102, 0, ...})
     int owned_skill_count;
 };
+
+struct SkillBook {
+    int bookID;
+    char nama[MAX_NAMA];
+    int rarity;
+    int drop_skill_ids[MAX_SKILL_DROPS];
+    int drop_count; // Selalu 4 untuk kasus ini
+};
+
+extern struct SkillBook daftarSkillBook[];
+extern const int JUMLAH_SKILLBOOK;
 
 
 // [Deklarasi Global]
