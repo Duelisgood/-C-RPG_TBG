@@ -1,4 +1,4 @@
-# 🚀 Laporan Proyek: Petualangan RPG Berbasis Teks dengan Bahasa C 🚀
+# 🚀 Petualangan RPG Berbasis Teks dengan Bahasa C 🚀
 
 Selamat datang di laporan (tidak begitu) formal dari proyek pembelajaran pribadiku! Proyek ini adalah sebuah game **RPG berbasis teks** sederhana yang dibangun sepenuhnya menggunakan bahasa C. Tujuannya bukan untuk menciptakan game terhebat di dunia, melainkan untuk belajar, bereksperimen, dan yang paling penting, bersenang-senang dengan bahasa C. 🎮
 
