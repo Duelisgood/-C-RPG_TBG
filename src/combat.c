@@ -31,8 +31,13 @@ void lakukan_pertarungan(struct Monster musuh) {
 
     char input[MAX_INPUT];
     struct Monster *musuh_ptr = &musuh; 
-    struct Skill skill1_data = daftarSkill[mainPlayer.active_skill_1_index]; 
-    struct Skill skill2_data = daftarSkill[mainPlayer.active_skill_2_index];
+    
+    int skill1_id = mainPlayer.owned_skill_ids[mainPlayer.active_skill_1_index];
+    int skill2_id = mainPlayer.owned_skill_ids[mainPlayer.active_skill_2_index];
+
+   
+    struct Skill skill1_data = get_skill_by_id(skill1_id);
+    struct Skill skill2_data = get_skill_by_id(skill2_id);
 
     
     printf("\n--> PERTARUNGAN DIMULAI dengan %s! (HP: %d)\n", musuh.nama, musuh.healthPoint);
