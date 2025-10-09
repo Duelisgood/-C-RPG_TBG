@@ -25,6 +25,9 @@ void kembali_ke_main() {
 
 
 void lakukan_pertarungan(struct Monster musuh) {
+    
+    printf("[DEBUG] Nilai saat pertarungan dimulai -> Skill 1 Index: %d, Skill 2 Index: %d\n", 
+           mainPlayer.active_skill_1_index, mainPlayer.active_skill_2_index);
 
     mainPlayer.skill_1_cd = 0; // <-- TAMBAHKAN BARIS INI
     mainPlayer.skill_2_cd = 0;

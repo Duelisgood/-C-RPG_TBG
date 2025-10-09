@@ -122,7 +122,7 @@ void help(){
     printf("USE_EQUIPMENT - Membuka menu untuk memakai atau mengganti Weapon, Armor, dan Helmet.\n");
     printf("CHANGE_SKILL  - Membuka menu untuk mengganti skill aktif yang bisa digunakan dalam pertarungan.\n");
     printf("OPEN_CHEST    - Membuka menu untuk menggunakan Kunci dan membuka Peti Harta Karun.\n");
-    printf("LEARN         - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
+    printf("LEARN_BOOk    - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
     printf("QUIT          - Menyimpan permainan dan keluar dari program.\n");
     printf("HELP          - Menampilkan daftar perintah ini.\n");
     printf("CLS           - Membersihkan layar konsol.\n");
