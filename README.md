@@ -150,17 +150,6 @@ Proyek ini menjadi tempatku untuk mengaplikasikan berbagai konsep fundamental da
 Aku mencoba untuk menjaga agar struktur kode tetap rapi dan terorganisir. Berikut adalah gambaran kasar dari struktur direktori dan file:
 
 *(Catatan: Kamu bisa menyesuaikan struktur ini sesuai dengan proyekmu)*
-````
-
-/C-RPG\_TBG
-|
-|-- main.c         // File utama yang berisi game loop dan fungsi-fungsi inti
-|-- player.h       // Header untuk deklarasi struct dan fungsi terkait pemain
-|-- combat.c       // Logika untuk sistem pertarungan
-|-- savegame.dat   // Contoh file save (dihasilkan oleh game)
-|-- README.md      // Kamu sedang membacanya :)
-
-```
 
 ---
 
