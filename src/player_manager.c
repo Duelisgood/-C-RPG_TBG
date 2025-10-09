@@ -466,8 +466,8 @@ void change_skill() {
     printf("Skill yang Anda Miliki:\n");
     for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
         struct Skill s = get_skill_by_id(mainPlayer.owned_skill_ids[i]);
-        printf("ID: %d | %s (Rarity: %d, Efek: %d, CD: %d)\n", 
-               s.skillID, s.nama, s.rarity, s.effect_value, s.cooldown_max);
+        printf("ID: %d | %s (Tipe: %s, Rarity: %d, Efek: %d, CD: %d)\n", 
+               s.skillID, s.nama, s.effect_type, s.rarity, s.effect_value, s.cooldown_max);
     }
     printf("--------------------------------\n");
 
@@ -488,7 +488,8 @@ void change_skill() {
         // ... (pembersihan input)
         return;
     }
-    
+    while (getchar() != '\n');
+
     // ==========================================================
     // VALIDASI: Cek apakah skillID baru dimiliki pemain
     // ==========================================================
