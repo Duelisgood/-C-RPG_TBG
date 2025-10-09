@@ -542,15 +542,29 @@ void bag(){
         return;
     }
 
-    for (int i = 0; i < mainPlayer.inventory_count; i++) {
+        for (int i = 0; i < mainPlayer.inventory_count; i++) {
         int item_id = mainPlayer.inventory[i].itemID;
         int qty = mainPlayer.inventory[i].quantity;
         
-        // Dapatkan detail Item dari daftarItem global
         struct Item item_detail = get_item_by_id(item_id); 
         
-        printf("[%d] ID %d | Nama: %s (x%d) | Tipe: %s\n", 
+        // Cetak informasi dasar item
+        printf("[%d] ID %d | Nama: %s (x%d) | Tipe: %s", 
                i + 1, item_id, item_detail.nama, qty, item_detail.type);
+        
+        // Tambahkan cetak bonus atribut berdasarkan tipe item
+        if (strcmp(item_detail.type, "WEAPON") == 0) {
+            printf(" | +%d ATK\n", item_detail.stat_boost);
+        } else if (strcmp(item_detail.type, "ARMOR") == 0) {
+            printf(" | +%d DEF\n", item_detail.stat_boost);
+        } else if (strcmp(item_detail.type, "HELMET") == 0) {
+            printf(" | +%d HP\n", item_detail.stat_boost);
+        } else if (strcmp(item_detail.type, "CONSUMABLE") == 0) {
+            printf(" | Pulihkan %d HP\n", item_detail.stat_boost);
+        } else {
+            // Untuk tipe lain seperti CHEST atau BOOK, cukup beri baris baru
+            printf("\n");
+        }
     }
     printf("---------------\n");
 }
