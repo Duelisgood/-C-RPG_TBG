@@ -38,6 +38,31 @@ struct Player mainPlayer = {
     .owned_skill_count = 2    
 };
 
+void recalculate_all_bonuses() {
+    // Reset semua bonus ke 0
+    mainPlayer.bonus_atk = 0;
+    mainPlayer.bonus_def = 0;
+    mainPlayer.bonus_hp = 0;
+
+    // Hitung ulang bonus dari weapon
+    if (mainPlayer.equipped_weapon_id != 0) {
+        struct Item weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
+        mainPlayer.bonus_atk = weapon.stat_boost;
+    }
+
+    // Hitung ulang bonus dari armor
+    if (mainPlayer.equipped_armor_id != 0) {
+        struct Item armor = get_item_by_id(mainPlayer.equipped_armor_id);
+        mainPlayer.bonus_def = armor.stat_boost;
+    }
+
+    // Hitung ulang bonus dari helmet
+    if (mainPlayer.equipped_helmet_id != 0) {
+        struct Item helmet = get_item_by_id(mainPlayer.equipped_helmet_id);
+        mainPlayer.bonus_hp = helmet.stat_boost;
+    }
+}
+
 void save_game_data() {
     if (strcmp(mainPlayer.username, "") == 0) {
         // Hanya simpan jika ada pemain yang login
@@ -58,8 +83,10 @@ void save_game_data() {
     fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
-    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
+   
     fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
+    fprintf(file, "bonus_atk=%d\n", mainPlayer.bonus_atk);
+    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
     fprintf(file, "bonus_def=%d\n", mainPlayer.bonus_def);  
     fprintf(file, "equipped_helmet_id=%d\n", mainPlayer.equipped_helmet_id);
     fprintf(file, "bonus_hp=%d\n", mainPlayer.bonus_hp);
@@ -150,6 +177,8 @@ void load_game_data(const char *username) {
             else if (strcmp(key, "bonus_def") == 0) mainPlayer.bonus_def = value; 
             else if (strcmp(key, "equipped_helmet_id") == 0) mainPlayer.equipped_helmet_id = value;
             else if (strcmp(key, "bonus_hp") == 0) mainPlayer.bonus_hp = value;
+            else if (strcmp(key, "equipped_weapon_id") == 0) mainPlayer.equipped_weapon_id = value;
+            else if (strcmp(key, "bonus_atk") == 0) mainPlayer.bonus_atk = value;
             else if (strcmp(key, "active_skill_1_index") == 0) mainPlayer.active_skill_1_index = value;
             else if (strcmp(key, "active_skill_2_index") == 0) mainPlayer.active_skill_2_index = value;
             else if (strcmp(key, "skill_1_cd") == 0) mainPlayer.skill_1_cd = value;
@@ -167,11 +196,16 @@ void load_game_data(const char *username) {
     mainPlayer.owned_skill_count = owned_skill_counter; 
     
     fclose(file);
+    recalculate_all_bonuses();
     apply_stat_boosts(); 
 
-    printf("Data %s dimuat. Level %d | HP %d | ATK %d | Item di tas: %d\n", 
-           username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK, mainPlayer.inventory_count);
+    printf("Data %s dimuat. Level %d | HP %d | ATK %d | DEF %d | Item di tas: %d\n", 
+           username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.inventory_count);
 }
+
+// File: src/player_manager.c (tambahkan di mana saja, misal setelah load_game_data)
+
+
 
 void check_for_level_up() {
     int exp_needed = 100 * mainPlayer.LEVEL;
@@ -525,6 +559,7 @@ void bag(){
         printf("[%d] ID %d | Nama: %s (x%d) | Tipe: %s\n", 
                i + 1, item_id, item_detail.nama, qty, item_detail.type);
     }
+    printf("---------------\n");
 }
 
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
