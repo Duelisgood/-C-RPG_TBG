@@ -527,6 +527,7 @@ void change_skill() {
     }
 
     printf("\nSUKSES: Slot %d berhasil diganti menjadi %s.\n", active_slot, skill_baru.nama);
+    save_game_data();
 }
 
 void bag(){

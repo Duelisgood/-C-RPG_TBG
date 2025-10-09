@@ -26,6 +26,9 @@ void kembali_ke_main() {
 
 void lakukan_pertarungan(struct Monster musuh) {
 
+    mainPlayer.skill_1_cd = 0; // <-- TAMBAHKAN BARIS INI
+    mainPlayer.skill_2_cd = 0;
+
     char input[MAX_INPUT];
     struct Monster *musuh_ptr = &musuh; 
     struct Skill skill1_data = daftarSkill[mainPlayer.active_skill_1_index]; 
@@ -65,46 +68,51 @@ void lakukan_pertarungan(struct Monster musuh) {
         else if (strcmp(input, "SKILL 1") == 0) {
             if (mainPlayer.skill_1_cd > 0) {
                 printf("Skill 1 (%s) sedang cooldown (%d turn tersisa).\n", skill1_data.nama, mainPlayer.skill_1_cd);
-                continue; // Ulangi giliran Player
+                continue;
             }
             
-                if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
-                     mainPlayer.HP += skill1_data.effect_value;
-                // FIX: Batasi Current HP agar tidak melebihi Max HP
+            if (strcmp(skill1_data.effect_type, "HEAL") == 0) {
+                int old_hp = mainPlayer.HP;
+                mainPlayer.HP += skill1_data.effect_value;
                 if (mainPlayer.HP > mainPlayer.MAX_HP) {
                     mainPlayer.HP = mainPlayer.MAX_HP;
-                }   
-                } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
-                    musuh_ptr->healthPoint -= (mainPlayer.ATK + skill1_data.effect_value);
                 }
+                int actual_healed = mainPlayer.HP - old_hp;
+                printf("Anda menggunakan skill %s dan memulihkan %d HP!\n", skill1_data.nama, actual_healed);
 
-                printf("Anda menggunakan %s!\n", skill1_data.nama);
-                mainPlayer.skill_1_cd = skill1_data.cooldown_max; 
-                turn_taken = 1;
-            } 
+            } else if (strcmp(skill1_data.effect_type, "ATTACK") == 0) {
+                int total_damage = mainPlayer.ATK + skill1_data.effect_value;
+                musuh_ptr->healthPoint -= total_damage;
+                printf("Anda menggunakan skill %s dan memberikan %d damage!\n", skill1_data.nama, total_damage);
+            }
+
+            mainPlayer.skill_1_cd = skill1_data.cooldown_max; 
+            turn_taken = 1;
+        }
 
         else if (strcmp(input, "SKILL 2") == 0) {
             if (mainPlayer.skill_2_cd > 0) {
                 printf("Skill 2 (%s) sedang cooldown (%d turn tersisa).\n", skill2_data.nama, mainPlayer.skill_2_cd);
-                continue; // Ulangi giliran Player
+                continue;
             }
             
-             
-                if (strcmp(skill2_data.effect_type, "HEAL") == 0) { 
-                     mainPlayer.HP += skill2_data.effect_value;
-                
-                    // FIX: Batasi Current HP agar tidak melebihi Max HP
-                    if (mainPlayer.HP > mainPlayer.MAX_HP) {
-                        mainPlayer.HP = mainPlayer.MAX_HP;
-                    }
-                    } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
-                    musuh_ptr->healthPoint -= (mainPlayer.ATK + skill2_data.effect_value);
+            if (strcmp(skill2_data.effect_type, "HEAL") == 0) { 
+                int old_hp = mainPlayer.HP;
+                mainPlayer.HP += skill2_data.effect_value;
+                if (mainPlayer.HP > mainPlayer.MAX_HP) {
+                    mainPlayer.HP = mainPlayer.MAX_HP;
                 }
-            
-                printf("Anda menggunakan %s!\n", skill2_data.nama);
-                mainPlayer.skill_2_cd = skill2_data.cooldown_max; 
-                turn_taken = 1; // 
-            // -------------------------
+                int actual_healed = mainPlayer.HP - old_hp;
+                printf("Anda menggunakan skill %s dan memulihkan %d HP!\n", skill2_data.nama, actual_healed);
+
+            } else if (strcmp(skill2_data.effect_type, "ATTACK") == 0) { 
+                int total_damage = mainPlayer.ATK + skill2_data.effect_value;
+                musuh_ptr->healthPoint -= total_damage;
+                printf("Anda menggunakan skill %s dan memberikan %d damage!\n", skill2_data.nama, total_damage);
+            }
+
+            mainPlayer.skill_2_cd = skill2_data.cooldown_max; 
+            turn_taken = 1;
         }
 
          else if (strcmp(input, "KABUR") == 0) {
