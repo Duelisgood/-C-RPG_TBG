@@ -1,6 +1,7 @@
 # File-file hasil kompilasi (executables dan object files)
 *.exe
 *.o
+*.file
 
 # Folder output
 output/
