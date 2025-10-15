@@ -64,54 +64,40 @@ void recalculate_all_bonuses() {
 }
 
 void save_game_data() {
-    if (strcmp(mainPlayer.username, "") == 0) {
-        // Hanya simpan jika ada pemain yang login
-        return; 
+    if (strlen(mainPlayer.username) == 0) {
+        return; // Jangan simpan jika tidak ada pemain yang login
     }
 
     FILE *file = fopen(mainPlayer.username, "w");
     if (file == NULL) {
-        printf("ERROR: Gagal menyimpan data ke file %s. Periksa izin folder.\n", mainPlayer.username);
+        printf("ERROR: Gagal menyimpan data ke file %s.\n", mainPlayer.username);
         return;
     }
 
-    // Tulis semua stat Player ke file
-    fprintf(file, "HP=%d\n", mainPlayer.HP);
-    fprintf(file, "MAX_HP=%d\n", mainPlayer.MAX_HP);
-    fprintf(file, "ATK=%d\n", mainPlayer.ATK);
-    fprintf(file, "DEF=%d\n", mainPlayer.DEF);
+    // --- Simpan Stats Utama ---
     fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
-    fprintf(file, "max_inventory_slots=%d\n", mainPlayer.max_inventory_slots); // <-- TAMBAHKAN
-    fprintf(file, "max_skills_owned=%d\n", mainPlayer.max_skills_owned);
-   
-    fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
-    fprintf(file, "bonus_atk=%d\n", mainPlayer.bonus_atk);
-    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id); 
-    fprintf(file, "bonus_def=%d\n", mainPlayer.bonus_def);  
-    fprintf(file, "equipped_helmet_id=%d\n", mainPlayer.equipped_helmet_id);
-    fprintf(file, "bonus_hp=%d\n", mainPlayer.bonus_hp);
+    fprintf(file, "HP=%d\n", mainPlayer.HP);
+    // Catatan: MAX_HP, ATK, DEF tidak perlu disimpan karena akan dihitung ulang
 
+    // --- Simpan Equipment IDs ---
+    fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
+    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id);
+    fprintf(file, "equipped_helmet_id=%d\n", mainPlayer.equipped_helmet_id);
+
+    // --- Simpan Info Skill ---
     fprintf(file, "active_skill_1_index=%d\n", mainPlayer.active_skill_1_index);
     fprintf(file, "active_skill_2_index=%d\n", mainPlayer.active_skill_2_index);
-    fprintf(file, "skill_1_cd=%d\n", mainPlayer.skill_1_cd);
-    fprintf(file, "skill_2_cd=%d\n", mainPlayer.skill_2_cd);
-
-    
-    // Simpan daftar Skill yang dimiliki (Owned Skills)
-    fprintf(file, "OWNED_SKILL_COUNT=%d\n", mainPlayer.owned_skill_count);
+    fprintf(file, "owned_skill_count=%d\n", mainPlayer.owned_skill_count);
     for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
-        fprintf(file, "SKILL_OWNED_ID=%d\n", mainPlayer.owned_skill_ids[i]);
+        fprintf(file, "skill_owned_id=%d\n", mainPlayer.owned_skill_ids[i]);
     }
 
-    // Tambahkan stat lain di sini jika ada (misal: EQUIPPED_WEAPON_ID)
-    fprintf(file, "BAG_SIZE=%d\n", mainPlayer.inventory_count);
+    // --- Simpan Inventory ---
+    fprintf(file, "inventory_count=%d\n", mainPlayer.inventory_count);
     for (int i = 0; i < mainPlayer.inventory_count; i++) {
-        // Tulis ITEM=ID,Quantity
-        fprintf(file, "ITEM=%d,%d\n", 
-                mainPlayer.inventory[i].itemID, 
-                mainPlayer.inventory[i].quantity);
+        fprintf(file, "item=%d,%d\n", mainPlayer.inventory[i].itemID, mainPlayer.inventory[i].quantity);
     }
 
     fclose(file);
@@ -124,78 +110,58 @@ void save_game_data() {
 void load_game_data(const char *username) {
     FILE *file = fopen(username, "r");
     if (file == NULL) {
-        printf("ERROR: Gagal memuat data dari file %s.\n", username);
+        printf("ERROR: Gagal memuat file save %s.\n", username);
         return;
     }
 
-    // Reset player ke kondisi awal sebelum memuat. Ini adalah praktik yang aman.
-    struct Player loadedPlayer = {0}; 
+    // 1. Reset struct sementara ke nol
+    struct Player loadedPlayer = {0};
     strcpy(loadedPlayer.username, username);
-    
+
+    // Atur kapasitas default, akan ditimpa jika ada di file save
+    loadedPlayer.max_inventory_slots = 10;
+    loadedPlayer.max_skills_owned = 4;
+
     char line[100];
-    char key[50]; // <-- UKURAN DIPERBESAR
+    char key[50];
     int value;
     
-    int owned_skill_counter = 0;
-    int inventory_counter = 0;
-    
+    // 2. Loop melalui file dan isi struct sementara
     while (fgets(line, sizeof(line), file) != NULL) {
         bersihkanString(line);
 
-        if (strncmp(line, "ITEM=", 5) == 0) {
-            int id, qty;
-            if (sscanf(line, "ITEM=%d,%d", &id, &qty) == 2 && inventory_counter < MAX_INVENTORY_SLOTS) {
-                loadedPlayer.inventory[inventory_counter].itemID = id;
-                loadedPlayer.inventory[inventory_counter].quantity = qty;
-                inventory_counter++;
+        if (sscanf(line, "item=%d,%d", &loadedPlayer.inventory[loadedPlayer.inventory_count].itemID, &loadedPlayer.inventory[loadedPlayer.inventory_count].quantity) == 2) {
+            if (loadedPlayer.inventory_count < 100) { // Batas aman array
+                loadedPlayer.inventory_count++;
             }
-        } 
-        else if (strncmp(line, "SKILL_OWNED_ID=", 15) == 0) {
-            int skill_id;
-            if (sscanf(line, "SKILL_OWNED_ID=%d", &skill_id) == 1 && owned_skill_counter < mainPlayer.max_skills_owned) {
-                loadedPlayer.owned_skill_ids[owned_skill_counter] = skill_id;
-                owned_skill_counter++;
+        } else if (sscanf(line, "skill_owned_id=%d", &loadedPlayer.owned_skill_ids[loadedPlayer.owned_skill_count]) == 1) {
+            if (loadedPlayer.owned_skill_count < 50) { // Batas aman array
+                loadedPlayer.owned_skill_count++;
             }
-        } 
-        else if (sscanf(line, "%49[^=]=%d", key, &value) == 2) { // <-- BATAS KARAKTER DIPERBESAR
-            if (strcmp(key, "HP") == 0) loadedPlayer.HP = value;
-            else if (strcmp(key, "MAX_HP") == 0) loadedPlayer.MAX_HP = value;
-            else if (strcmp(key, "ATK") == 0) loadedPlayer.ATK = value;
-            else if (strcmp(key, "DEF") == 0) loadedPlayer.DEF = value;
-            else if (strcmp(key, "LEVEL") == 0) loadedPlayer.LEVEL = value;
+        } else if (sscanf(line, "%49[^=]=%d", key, &value) == 2) {
+            if (strcmp(key, "LEVEL") == 0) loadedPlayer.LEVEL = value;
             else if (strcmp(key, "XP") == 0) loadedPlayer.XP = value;
             else if (strcmp(key, "GOLD") == 0) loadedPlayer.GOLD = value;
-            else if (strcmp(key, "max_inventory_slots") == 0) loadedPlayer.max_inventory_slots = value; 
-            else if (strcmp(key, "max_skills_owned") == 0) loadedPlayer.max_skills_owned = value;   
+            else if (strcmp(key, "HP") == 0) loadedPlayer.HP = value;
             else if (strcmp(key, "equipped_weapon_id") == 0) loadedPlayer.equipped_weapon_id = value;
-            else if (strcmp(key, "bonus_atk") == 0) loadedPlayer.bonus_atk = value;
-            else if (strcmp(key, "equipped_armor_id") == 0) loadedPlayer.equipped_armor_id = value; 
-            else if (strcmp(key, "bonus_def") == 0) loadedPlayer.bonus_def = value; 
+            else if (strcmp(key, "equipped_armor_id") == 0) loadedPlayer.equipped_armor_id = value;
             else if (strcmp(key, "equipped_helmet_id") == 0) loadedPlayer.equipped_helmet_id = value;
-            else if (strcmp(key, "bonus_hp") == 0) loadedPlayer.bonus_hp = value;
             else if (strcmp(key, "active_skill_1_index") == 0) loadedPlayer.active_skill_1_index = value;
             else if (strcmp(key, "active_skill_2_index") == 0) loadedPlayer.active_skill_2_index = value;
-            else if (strcmp(key, "skill_1_cd") == 0) loadedPlayer.skill_1_cd = value;
-            else if (strcmp(key, "skill_2_cd") == 0) loadedPlayer.skill_2_cd = value;
-            else if (strcmp(key, "OWNED_SKILL_COUNT") == 0) loadedPlayer.owned_skill_count = value;
-            // BAG_SIZE tidak perlu dimuat, akan dihitung otomatis
+            // owned_skill_count dan inventory_count dihitung secara otomatis
         }
     }
     fclose(file);
 
-    // Set jumlah item & skill berdasarkan hasil hitungan, ini lebih aman
-    loadedPlayer.inventory_count = inventory_counter;
-    loadedPlayer.owned_skill_count = owned_skill_counter;
-
-    // Salin semua data yang sudah dimuat ke mainPlayer global
+    // 3. Setelah semua data dimuat, baru salin ke mainPlayer global
     mainPlayer = loadedPlayer;
 
-    // Panggil fungsi kalkulasi setelah semua data dimuat
+    // 4. Hitung ulang semua stat turunan
     recalculate_all_bonuses();
     apply_stat_boosts(); 
 
-    printf("Data %s dimuat. Level %d | HP %d | ATK %d | DEF %d | Item di tas: %d\n", 
-           mainPlayer.username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.inventory_count);
+    printf("Data %s dimuat. Level %d | HP %d/%d | ATK %d | DEF %d | Item di tas: %d\n", 
+           mainPlayer.username, mainPlayer.LEVEL, mainPlayer.HP, mainPlayer.MAX_HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.inventory_count);
 }
 
 // File: src/player_manager.c (tambahkan di mana saja, misal setelah load_game_data)
