@@ -4,7 +4,7 @@
 
 #define MAX_NAMA 50
 #define MAX_INVENTORY_SLOTS 50
-#define MAX_SKILLS_OWNED 10
+
 
 struct InventorySlot {
     int itemID;
@@ -12,6 +12,7 @@ struct InventorySlot {
 };
 
 struct Player {
+    
     char username[50];
     int HP;
     int MAX_HP;
@@ -30,10 +31,12 @@ struct Player {
     int skill_2_cd;
     int active_skill_1_index;
     int active_skill_2_index;
-    struct InventorySlot inventory[MAX_INVENTORY_SLOTS];
+    struct InventorySlot inventory[100];
     int inventory_count;
-    int owned_skill_ids[MAX_SKILLS_OWNED];
+    int max_inventory_slots;
+    int owned_skill_ids[50];
     int owned_skill_count;
+    int max_skills_owned;
 };
 
 extern struct Player mainPlayer; 

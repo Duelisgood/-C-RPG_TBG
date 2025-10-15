@@ -304,7 +304,7 @@ void explore(){
             // Tambahkan item ke bag (misal: selalu 1 buah)
             tambahkan_item_ke_bag(item_ditemukan.itemID, 1);
             
-            printf("Anda menemukan Equipment Rarity %d: %s.\n", prize_rarity, item_ditemukan.nama);
+            printf("Anda menemukan Equipment: ID %d - %s (Rarity %d).\n", item_ditemukan.itemID, item_ditemukan.nama, item_ditemukan.rarity);
         }
     }  
     else { 

@@ -83,6 +83,8 @@ void save_game_data() {
     fprintf(file, "LEVEL=%d\n", mainPlayer.LEVEL);
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
+    fprintf(file, "max_inventory_slots=%d\n", mainPlayer.max_inventory_slots); // <-- TAMBAHKAN
+    fprintf(file, "max_skills_owned=%d\n", mainPlayer.max_skills_owned);
    
     fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
     fprintf(file, "bonus_atk=%d\n", mainPlayer.bonus_atk);
@@ -150,7 +152,7 @@ void load_game_data(const char *username) {
         } 
         else if (strncmp(line, "SKILL_OWNED_ID=", 15) == 0) {
             int skill_id;
-            if (sscanf(line, "SKILL_OWNED_ID=%d", &skill_id) == 1 && owned_skill_counter < MAX_SKILLS_OWNED) {
+            if (sscanf(line, "SKILL_OWNED_ID=%d", &skill_id) == 1 && owned_skill_counter < mainPlayer.max_skills_owned) {
                 loadedPlayer.owned_skill_ids[owned_skill_counter] = skill_id;
                 owned_skill_counter++;
             }
@@ -163,6 +165,8 @@ void load_game_data(const char *username) {
             else if (strcmp(key, "LEVEL") == 0) loadedPlayer.LEVEL = value;
             else if (strcmp(key, "XP") == 0) loadedPlayer.XP = value;
             else if (strcmp(key, "GOLD") == 0) loadedPlayer.GOLD = value;
+            else if (strcmp(key, "max_inventory_slots") == 0) loadedPlayer.max_inventory_slots = value; 
+            else if (strcmp(key, "max_skills_owned") == 0) loadedPlayer.max_skills_owned = value;   
             else if (strcmp(key, "equipped_weapon_id") == 0) loadedPlayer.equipped_weapon_id = value;
             else if (strcmp(key, "bonus_atk") == 0) loadedPlayer.bonus_atk = value;
             else if (strcmp(key, "equipped_armor_id") == 0) loadedPlayer.equipped_armor_id = value; 
@@ -208,14 +212,20 @@ void check_for_level_up() {
         mainPlayer.XP -= exp_needed; 
         
         // Peningkatan Stat (Anda bisa atur sesuai keinginan)
-        mainPlayer.MAX_HP += 10; // +10 Max HP
-        mainPlayer.HP += 10;     // Pulihkan Current HP sebesar kenaikannya
+        mainPlayer.MAX_HP += 10;
+        mainPlayer.HP += 10;    
         mainPlayer.ATK += 2; 
         mainPlayer.DEF += 1; 
+
+        // -- TAMBAHKAN PENINGKATAN KAPASITAS --
+        mainPlayer.max_inventory_slots += 5;
+        mainPlayer.max_skills_owned += 2;
+        // -------------------------------------
 
         printf("\n***********************************\n");
         printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", mainPlayer.LEVEL);
         printf("Stat bertambah: MAX HP +10, ATK +2, DEF +1.\n");
+        printf("Kapasitas bertambah: Tas +5 slot, Skill +2 slot.\n"); // <-- Perbarui pesan
         printf("***********************************\n");
         
         // Hitung ulang EXP yang dibutuhkan untuk level berikutnya
@@ -281,6 +291,9 @@ void login_system() {
         fclose(file);
 
         // Set stat awal dan simpan ke file
+        mainPlayer.LEVEL = 1; // Pastikan level di-set ke 1
+        mainPlayer.max_inventory_slots = 20; // <-- TAMBAHKAN (Kapasitas awal tas)
+        mainPlayer.max_skills_owned = 10;
         mainPlayer.HP = 10; 
         mainPlayer.MAX_HP = 10; // <-- FIX: Set Max HP awal
         mainPlayer.ATK = 2; 
@@ -444,6 +457,7 @@ void change_skill() {
     int skill_id_baru;
 
     printf("\n--- GANTI SKILL AKTIF ---\n");
+    printf("Kapasitas Skill: (%d/%d)\n", mainPlayer.owned_skill_count, mainPlayer.max_skills_owned);
     printf("Skill Aktif Saat Ini:\n");
 
     // Tampilkan skill aktif saat ini (menggunakan index dari array owned_skill_ids)
@@ -528,52 +542,53 @@ void change_skill() {
     save_game_data();
 }
 
+// File: src/player_manager.c
+// Ganti seluruh fungsi bag() Anda dengan ini:
+
+// File: src/player_manager.c
+// Ganti seluruh fungsi bag() Anda dengan ini
+
 void bag(){
-    printf("\n--- BAG & STATS   ---\n");
+    printf("\n--- STATS & EQUIPMENT ---\n");
     printf("Username: %s\n", mainPlayer.username);
-    printf("Level: %d | XP: %d\n", mainPlayer.LEVEL, mainPlayer.XP);
-    printf("HP: %d | ATK: %d | DEF: %d | GOLD: %d\n", mainPlayer.HP, mainPlayer.ATK, mainPlayer.DEF, mainPlayer.GOLD);
+    printf("Level: %d | XP: %d / %d\n", mainPlayer.LEVEL, mainPlayer.XP, 100 * mainPlayer.LEVEL);
+    printf("HP: %d/%d | ATK: %d | DEF: %d\n", mainPlayer.HP, mainPlayer.MAX_HP, mainPlayer.ATK, mainPlayer.DEF);
+    printf("Gold: %d\n", mainPlayer.GOLD);
     
-    // Tampilkan Equipment
     struct Item weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
     struct Item armor = get_item_by_id(mainPlayer.equipped_armor_id);
-    struct Item helmet = get_item_by_id(mainPlayer.equipped_helmet_id); // <-- TAMBAHKAN
+    struct Item helmet = get_item_by_id(mainPlayer.equipped_helmet_id);
     
-    printf("Weapon: %s (+%d ATK)\n", weapon.itemID != 0 ? weapon.nama : "None", mainPlayer.bonus_atk);
-    printf("Armor: %s (+%d DEF)\n", armor.itemID != 0 ? armor.nama : "None", mainPlayer.bonus_def);
-    printf("Helmet: %s (+%d HP)\n", helmet.itemID != 0 ? helmet.nama : "None", mainPlayer.bonus_hp); // <-- TAMBAHKAN
+    printf("\n- Equipment Terpasang -\n");
+    printf("Weapon: %s (+%d ATK)\n", weapon.itemID != 0 ? weapon.nama : "Kosong", mainPlayer.bonus_atk);
+    printf("Armor : %s (+%d DEF)\n", armor.itemID != 0 ? armor.nama : "Kosong", mainPlayer.bonus_def);
+    printf("Helmet: %s (+%d HP)\n", helmet.itemID != 0 ? helmet.nama : "Kosong", mainPlayer.bonus_hp);
     
-    printf("\n--- INVENTORY ---\n");
+    printf("\n--- INVENTORY (%d/%d) ---\n", mainPlayer.inventory_count, mainPlayer.max_inventory_slots);
     if (mainPlayer.inventory_count == 0) {
         printf("Tas kosong.\n");
-        return;
-    }
-
+    } else {
         for (int i = 0; i < mainPlayer.inventory_count; i++) {
-        int item_id = mainPlayer.inventory[i].itemID;
-        int qty = mainPlayer.inventory[i].quantity;
-        
-        struct Item item_detail = get_item_by_id(item_id); 
-        
-        // Cetak informasi dasar item
-        printf("[%d] ID %d | Nama: %s (x%d) | Rarity: %d | Tipe: %s", 
-       i + 1, item_id, item_detail.nama, qty, item_detail.rarity, item_detail.type);
-        
-        // Tambahkan cetak bonus atribut berdasarkan tipe item
-        if (strcmp(item_detail.type, "WEAPON") == 0) {
-            printf(" | +%d ATK\n", item_detail.stat_boost);
-        } else if (strcmp(item_detail.type, "ARMOR") == 0) {
-            printf(" | +%d DEF\n", item_detail.stat_boost);
-        } else if (strcmp(item_detail.type, "HELMET") == 0) {
-            printf(" | +%d HP\n", item_detail.stat_boost);
-        } else if (strcmp(item_detail.type, "CONSUMABLE") == 0) {
-            printf(" | Pulihkan %d HP\n", item_detail.stat_boost);
-        } else {
-            // Untuk tipe lain seperti CHEST atau BOOK, cukup beri baris baru
-            printf("\n");
+            int item_id = mainPlayer.inventory[i].itemID;
+            int qty = mainPlayer.inventory[i].quantity;
+            
+            struct Item item_detail = get_item_by_id(item_id); 
+            
+            printf("[%d] ID %d | %s (x%d) | Rarity: %d | Tipe: %s", 
+                   i + 1, item_id, item_detail.nama, qty, item_detail.rarity, item_detail.type);
+            
+            if (strcmp(item_detail.type, "WEAPON") == 0) {
+                printf(" | +%d ATK\n", item_detail.stat_boost);
+            } else if (strcmp(item_detail.type, "ARMOR") == 0) {
+                printf(" | +%d DEF\n", item_detail.stat_boost);
+            } else if (strcmp(item_detail.type, "HELMET") == 0) {
+                printf(" | +%d HP\n", item_detail.stat_boost);
+            } else {
+                printf("\n");
+            }
         }
     }
-    printf("---------------\n");
+    printf("--------------------------\n");
 }
 
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
@@ -583,13 +598,13 @@ void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
         // PERBAIKAN: Menggunakan mainPlayer.inventory
         if (mainPlayer.inventory[i].itemID == item_id_baru) {
             mainPlayer.inventory[i].quantity += jumlah;
-            printf("\n%s bertambah menjadi %d.\n", item.nama, mainPlayer.inventory[i].quantity);
+            printf("\nID %d - %s bertambah menjadi %d.\n", item.itemID, item.nama, mainPlayer.inventory[i].quantity);
             return;
         }
     }
 
     // 2. Jika item belum ada, cari slot kosong
-    if (mainPlayer.inventory_count < MAX_INVENTORY_SLOTS) {
+    if (mainPlayer.inventory_count < mainPlayer.max_inventory_slots) {
         int new_index = mainPlayer.inventory_count;
         // PERBAIKAN: Menggunakan mainPlayer.inventory
         mainPlayer.inventory[new_index].itemID = item_id_baru;
@@ -597,7 +612,7 @@ void tambahkan_item_ke_bag(int item_id_baru, int jumlah) {
         mainPlayer.inventory_count++; // Tingkatkan jumlah slot terisi
         
         struct Item item = get_item_by_id(item_id_baru);
-        printf("\nItem baru ditemukan: %s x%d!\n", item.nama, jumlah);
+        printf("\nItem baru ditemukan: ID %d - %s x%d!\n", item.itemID, item.nama, jumlah);
     } else {
         printf("\nTas penuh! Item tidak bisa diambil.\n");
     }
@@ -613,7 +628,7 @@ void learn_new_skill(int skill_id) {
     }
 
     // 2. Tambahkan skill ke slot yang tersedia
-    if (mainPlayer.owned_skill_count < MAX_SKILLS_OWNED) {
+    if (mainPlayer.owned_skill_count < mainPlayer.max_skills_owned) {
         mainPlayer.owned_skill_ids[mainPlayer.owned_skill_count] = skill_id;
         mainPlayer.owned_skill_count++;
         
@@ -700,8 +715,8 @@ void open_chest(int chest_item_id) {
         // 3. Tambahkan item yang dijatuhkan ke Inventory Player
         tambahkan_item_ke_bag(dropped_item_id, 1);
         
-        printf("  [Drop]: Anda mendapatkan %s (Rarity %d)!\n", 
-            dropped_item_data.nama, dropped_item_data.rarity);
+        printf("  [Drop]: Anda mendapatkan ID %d - %s (Rarity %d)!\n", 
+        dropped_item_data.itemID, dropped_item_data.nama, dropped_item_data.rarity);
     } else {
         printf("Peti ini kosong!\n");
     }
