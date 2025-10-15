@@ -7,7 +7,8 @@
 #include "data/game_data.h" // Path diperbaiki
 #include "utilities.h"
 #include "player_manager.h"
-#include "combat.h"       // Explore, Fight
+#include "combat.h"    
+#include "shop.h"   // Explore, Fight
 #define MAX_INPUT 50
 
 void start_game(){
@@ -48,6 +49,9 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 
+        else if (strcmp(aksiPengguna, "SHOP") == 0) { // <-- TAMBAHKAN BLOK INI
+            open_shop_menu();
+        }
         else if (strcmp(aksiPengguna, "QUIT") == 0) { // Hapus || strcmp(aksiPengguna, "quit") == 0
             save_game_data(); // Simpan data sebelum keluar
             printf("Menyimpan dan keluar. Sampai jumpa!\n");

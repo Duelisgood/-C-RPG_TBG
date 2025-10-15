@@ -462,12 +462,17 @@ void change_skill() {
     }
     printf("--------------------------------\n");
 
-    printf("Pilih Slot Aktif yang ingin diganti (1 atau 2): ");
+    printf("Pilih Slot Aktif yang ingin diganti (1 atau 2, atau 0 untuk batal): ");
     if (scanf("%d", &active_slot) != 1) {
         while (getchar() != '\n');
         return;
     }
     while (getchar() != '\n');
+
+    if (active_slot == 0) {
+        printf("Batal mengganti skill.\n");
+        return; // Keluar dari fungsi jika dibatalkan
+    }
 
     if (active_slot != 1 && active_slot != 2) {
         printf("ERROR: Slot aktif harus 1 atau 2.\n");
@@ -480,6 +485,8 @@ void change_skill() {
         return;
     }
     while (getchar() != '\n');
+
+    
 
     // ==========================================================
     // VALIDASI: Cek apakah skillID baru dimiliki pemain
@@ -549,8 +556,8 @@ void bag(){
         struct Item item_detail = get_item_by_id(item_id); 
         
         // Cetak informasi dasar item
-        printf("[%d] ID %d | Nama: %s (x%d) | Tipe: %s", 
-               i + 1, item_id, item_detail.nama, qty, item_detail.type);
+        printf("[%d] ID %d | Nama: %s (x%d) | Rarity: %d | Tipe: %s", 
+       i + 1, item_id, item_detail.nama, qty, item_detail.rarity, item_detail.type);
         
         // Tambahkan cetak bonus atribut berdasarkan tipe item
         if (strcmp(item_detail.type, "WEAPON") == 0) {
@@ -694,7 +701,7 @@ void open_chest(int chest_item_id) {
         tambahkan_item_ke_bag(dropped_item_id, 1);
         
         printf("  [Drop]: Anda mendapatkan %s (Rarity %d)!\n", 
-               dropped_item_data.nama, dropped_item_data.rarity);
+            dropped_item_data.nama, dropped_item_data.rarity);
     } else {
         printf("Peti ini kosong!\n");
     }

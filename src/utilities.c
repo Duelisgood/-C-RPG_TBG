@@ -124,6 +124,7 @@ void help(){
     printf("OPEN_CHEST    - Membuka menu untuk menggunakan Kunci dan membuka Peti Harta Karun.\n");
     printf("LEARN_BOOk    - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
     printf("QUIT          - Menyimpan permainan dan keluar dari program.\n");
+    printf("SHOP          - Membuka toko untuk membeli dan menjual item.\n");
     printf("HELP          - Menampilkan daftar perintah ini.\n");
     printf("CLS           - Membersihkan layar konsol.\n");
     printf("------------------------\n");
@@ -243,7 +244,7 @@ void drop_chest_key_by_rarity(int monster_rarity) {
         struct Item dropped_key = get_item_by_id(dropped_key_id);
 
         // 3. Tambahkan kunci yang dipilih ke tas pemain
-        printf("\n[Loot Drop]: Monster menjatuhkan sebuah kunci: %s!\n", dropped_key.nama);
+        printf("\n[Loot Drop]: Monster menjatuhkan sebuah kunci: %s (Rarity: %d)!\n", dropped_key.nama, dropped_key.rarity);
         tambahkan_item_ke_bag(dropped_key_id, 1);
     }
     // Jika tidak ada kunci dengan rarity tersebut (count == 0), tidak terjadi apa-apa.
@@ -271,7 +272,7 @@ void drop_skill_book_by_rarity(int monster_rarity) {
         
         struct Item dropped_book = get_item_by_id(dropped_book_id);
 
-        printf("\n[Loot Drop]: Monster menjatuhkan sebuah buku: %s!\n", dropped_book.nama);
+        printf("\n[Loot Drop]: Monster menjatuhkan sebuah buku: %s (Rarity: %d)!\n", dropped_book.nama, dropped_book.rarity);
         tambahkan_item_ke_bag(dropped_book_id, 1);
     }
     // Jika tidak ada buku dengan rarity tersebut, tidak terjadi apa-apa
