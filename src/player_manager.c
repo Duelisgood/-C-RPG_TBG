@@ -92,6 +92,9 @@ void save_game_data() {
     fprintf(file, "owned_skill_count=%d\n", mainPlayer.owned_skill_count);
     for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
         fprintf(file, "skill_owned_id=%d\n", mainPlayer.owned_skill_ids[i]);
+        // --- TAMBAHKAN KODE BARU DI SINI ---
+        fprintf(file, "skill_enchanted_status=%d\n", mainPlayer.owned_skill_is_enchanted[i]);
+        // ------------------------------------
     }
 
     // --- Simpan Inventory ---
@@ -134,10 +137,20 @@ void load_game_data(const char *username) {
             if (loadedPlayer.inventory_count < 100) { // Batas aman array
                 loadedPlayer.inventory_count++;
             }
-        } else if (sscanf(line, "skill_owned_id=%d", &loadedPlayer.owned_skill_ids[loadedPlayer.owned_skill_count]) == 1) {
-            if (loadedPlayer.owned_skill_count < 50) { // Batas aman array
-                loadedPlayer.owned_skill_count++;
+        else if (sscanf(line, "skill_owned_id=%d", &value) == 1) { // <-- UBAH sscanf INI
+        if (loadedPlayer.owned_skill_count < 50) {
+            loadedPlayer.owned_skill_ids[loadedPlayer.owned_skill_count] = value;
+            loadedPlayer.owned_skill_is_enchanted[loadedPlayer.owned_skill_count] = 0;
+            loadedPlayer.owned_skill_count++;
+        }
+    } 
+        else if (sscanf(line, "skill_enchanted_status=%d", &value) == 1) {
+         
+            if (loadedPlayer.owned_skill_count > 0) {
+                loadedPlayer.owned_skill_is_enchanted[loadedPlayer.owned_skill_count - 1] = value;
             }
+        }
+            
         } else if (sscanf(line, "%49[^=]=%d", key, &value) == 2) {
             if (strcmp(key, "LEVEL") == 0) loadedPlayer.LEVEL = value;
             else if (strcmp(key, "XP") == 0) loadedPlayer.XP = value;
@@ -258,22 +271,24 @@ void login_system() {
 
         // Set stat awal dan simpan ke file
         mainPlayer.LEVEL = 1; // Pastikan level di-set ke 1
-        mainPlayer.max_inventory_slots = 20; // <-- TAMBAHKAN (Kapasitas awal tas)
+        mainPlayer.max_inventory_slots = 20; 
         mainPlayer.max_skills_owned = 10;
         mainPlayer.HP = 10; 
-        mainPlayer.MAX_HP = 10; // <-- FIX: Set Max HP awal
+        mainPlayer.MAX_HP = 10; 
         mainPlayer.ATK = 2; 
-        mainPlayer.DEF = 0; // <-- FIX: Set DEF awal
-        // ... (Set stat dasar lainnya) ...
+        mainPlayer.DEF = 0; 
+
+        for (int i = 0; i < 50; i++) {
+            mainPlayer.owned_skill_is_enchanted[i] = 0;
+        }
         
         // --- INISIALISASI INVENTORY ---
         tambahkan_item_ke_bag(101, 1);  
         // -----------------------------
-
+    
         mainPlayer.owned_skill_count = 0; 
 
         // 2. Tambahkan Skill ID 101 dan 102 ke daftar yang dimiliki
-        // (Anda dapat membuat fungsi 'learn_skill' terpisah, tapi kita lakukan inline di sini)
         mainPlayer.owned_skill_ids[0] = 101;
         mainPlayer.owned_skill_ids[1] = 102;
         mainPlayer.owned_skill_count = 2; // Pemain memiliki 2 skill

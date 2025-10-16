@@ -42,6 +42,12 @@ void lakukan_pertarungan(struct Monster musuh) {
     struct Skill skill1_data = get_skill_by_id(skill1_id);
     struct Skill skill2_data = get_skill_by_id(skill2_id);
 
+    if (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_1_index] == 1) {
+        skill1_data.effect_value += skill1_data.rarity; 
+    }
+    if (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_2_index] == 1) {
+        skill2_data.effect_value += skill2_data.rarity;
+    }
     
     printf("\n--> PERTARUNGAN DIMULAI dengan %s! (HP: %d)\n", musuh.nama, musuh.healthPoint);
 
@@ -55,8 +61,9 @@ void lakukan_pertarungan(struct Monster musuh) {
         printf("\n== Status ==\n");
         printf("Player HP: %d | %s HP: %d\n", mainPlayer.HP, musuh_ptr->nama, musuh_ptr->healthPoint);
 
-        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s) (CD: %d) | [SKILL 2] (%s) (CD: %d) | [KABUR]\n",
-            skill1_data.nama, mainPlayer.skill_1_cd, skill2_data.nama, mainPlayer.skill_2_cd);
+        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s%s) | [SKILL 2] (%s%s) | [KABUR]\n",
+            skill1_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_1_index] == 1) ? "+" : "",
+            skill2_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_2_index] == 1) ? "+" : "");
         
         // --- 2. GILIRAN PLAYER ---
         if (fgets(input, MAX_INPUT, stdin) == NULL) continue; 

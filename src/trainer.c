@@ -88,10 +88,68 @@ void forget_skill_menu() {
     }
 }
 
+// File: src/trainer.c
+
 void enchant_skill_menu() {
     printf("\n--- Perkuat Skill (Enchant) ---\n");
-    printf("Fitur ini belum tersedia.\n");
+    printf("Pilih skill untuk diperkuat dengan imbalan Gold. Skill hanya bisa diperkuat sekali.\n");
 
+    printf("\nSkill yang Anda Miliki:\n");
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        struct Skill s = get_skill_by_id(mainPlayer.owned_skill_ids[i]);
+        if (mainPlayer.owned_skill_is_enchanted[i] == 1) {
+            printf("  ID: %d | %s+ (Rarity: %d) | SUDAH DIPERKUAT\n", s.skillID, s.nama, s.rarity);
+        } else {
+            int enchant_cost = s.rarity * 1000; // Contoh: Rarity 1 = 1000 Gold
+            printf("  ID: %d | %s (Rarity: %d) | Biaya: %d Gold | Bonus: +%d Efek\n", s.skillID, s.nama, s.rarity, enchant_cost, s.rarity);
+        }
+    }
+    printf("--------------------------------\n");
+    printf("Emas Anda: %d\n", mainPlayer.GOLD);
+
+    int skill_id_to_enchant;
+    printf("Masukkan ID skill yang ingin diperkuat (atau 0 untuk batal): ");
+    scanf("%d", &skill_id_to_enchant);
+    while(getchar() != '\n');
+
+    if (skill_id_to_enchant == 0) {
+        printf("Batal memperkuat skill.\n");
+        return;
+    }
+
+    // Validasi
+    int skill_index = -1;
+    for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
+        if (mainPlayer.owned_skill_ids[i] == skill_id_to_enchant) {
+            skill_index = i;
+            break;
+        }
+    }
+
+    if (skill_index == -1) {
+        printf("Anda tidak memiliki skill dengan ID tersebut.\n");
+        return;
+    }
+
+    if (mainPlayer.owned_skill_is_enchanted[skill_index] == 1) {
+        printf("Skill ini sudah diperkuat sebelumnya.\n");
+        return;
+    }
+
+    struct Skill skill_to_enchant = get_skill_by_id(skill_id_to_enchant);
+    int enchant_cost = skill_to_enchant.rarity * 1000;
+
+    if (mainPlayer.GOLD < enchant_cost) {
+        printf("Emas Anda tidak cukup.\n");
+        return;
+    }
+
+    // Proses Enchant
+    mainPlayer.GOLD -= enchant_cost;
+    mainPlayer.owned_skill_is_enchanted[skill_index] = 1;
+
+    printf("Sukses! Skill '%s' berhasil diperkuat!\n", skill_to_enchant.nama);
+    save_game_data();
 }
 
 void open_trainer_menu() {

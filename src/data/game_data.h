@@ -35,6 +35,7 @@ struct Player {
     int inventory_count;
     int max_inventory_slots;
     int owned_skill_ids[50];
+    int owned_skill_is_enchanted[50];
     int owned_skill_count;
     int max_skills_owned;
 };
