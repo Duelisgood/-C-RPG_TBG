@@ -25,10 +25,15 @@ struct Player mainPlayer = {
     .LEVEL = 1,
     .XP = 0,
     .GOLD = 0,
-    .equipped_weapon_id = 0,
+    .equipped_weapon_slot_index = -1,    // Gunakan nama baru dan nilai -1
+    .equipped_weapon_enchant_level = 0,
     .bonus_atk = 0,
-    .equipped_armor_id = 0, 
-    .bonus_def = 0,   
+    .equipped_armor_slot_index = -1,     // Gunakan nama baru dan nilai -1
+    .equipped_armor_enchant_level = 0,
+    .bonus_def = 0,
+    .equipped_helmet_slot_index = -1,    // Gunakan nama baru dan nilai -1
+    .equipped_helmet_enchant_level = 0,
+    .bonus_hp = 0,  
     .skill_1_cd = 0,
     .skill_2_cd = 0,
     .active_skill_1_index = 0,
@@ -90,11 +95,11 @@ void save_game_data() {
     // Catatan: MAX_HP, ATK, DEF tidak perlu disimpan karena akan dihitung ulang
 
     // --- Simpan Equipment IDs ---
-    fprintf(file, "equipped_weapon_id=%d\n", mainPlayer.equipped_weapon_id);
+    fprintf(file, "equipped_weapon_slot_index=%d\n", mainPlayer.equipped_weapon_slot_index);
     fprintf(file, "equipped_weapon_enchant_level=%d\n", mainPlayer.equipped_weapon_enchant_level);
-    fprintf(file, "equipped_armor_id=%d\n", mainPlayer.equipped_armor_id);
+    fprintf(file, "equipped_armor_slot_index=%d\n", mainPlayer.equipped_armor_slot_index);
     fprintf(file, "equipped_armor_enchant_level=%d\n", mainPlayer.equipped_armor_enchant_level);
-    fprintf(file, "equipped_helmet_id=%d\n", mainPlayer.equipped_helmet_id);
+    fprintf(file, "equipped_helmet_slot_index=%d\n", mainPlayer.equipped_helmet_slot_index);
     fprintf(file, "equipped_helmet_enchant_level=%d\n", mainPlayer.equipped_helmet_enchant_level); 
 
     // --- Simpan Info Skill ---
@@ -503,14 +508,28 @@ void bag(){
     printf("HP: %d/%d | ATK: %d | DEF: %d\n", mainPlayer.HP, mainPlayer.MAX_HP, mainPlayer.ATK, mainPlayer.DEF);
     printf("Gold: %d\n", mainPlayer.GOLD);
     
-    struct Item weapon = get_item_by_id(mainPlayer.equipped_weapon_id);
-    struct Item armor = get_item_by_id(mainPlayer.equipped_armor_id);
-    struct Item helmet = get_item_by_id(mainPlayer.equipped_helmet_id);
-    
     printf("\n- Equipment Terpasang -\n");
-    printf("Weapon: %s+%d (+%d ATK)\n", weapon.itemID != 0 ? weapon.nama : "Kosong", mainPlayer.equipped_weapon_enchant_level, mainPlayer.bonus_atk);
-    printf("Armor : %s+%d (+%d DEF)\n", armor.itemID != 0 ? armor.nama : "Kosong", mainPlayer.equipped_armor_enchant_level, mainPlayer.bonus_def);
-    printf("Helmet: %s+%d (+%d HP)\n", helmet.itemID != 0 ? helmet.nama : "Kosong", mainPlayer.equipped_helmet_enchant_level, mainPlayer.bonus_hp);
+    // Logika baru untuk mendapatkan data item yang dipakai
+    if (mainPlayer.equipped_weapon_slot_index != -1) {
+        struct Item weapon = get_item_by_id(mainPlayer.inventory[mainPlayer.equipped_weapon_slot_index].itemID);
+        printf("Weapon: %s+%d (+%d ATK)\n", weapon.nama, mainPlayer.inventory[mainPlayer.equipped_weapon_slot_index].enchant_level, mainPlayer.bonus_atk);
+    } else {
+        printf("Weapon: Kosong\n");
+    }
+
+    if (mainPlayer.equipped_armor_slot_index != -1) {
+        struct Item armor = get_item_by_id(mainPlayer.inventory[mainPlayer.equipped_armor_slot_index].itemID);
+        printf("Armor : %s+%d (+%d DEF)\n", armor.nama, mainPlayer.inventory[mainPlayer.equipped_armor_slot_index].enchant_level, mainPlayer.bonus_def);
+    } else {
+        printf("Armor : Kosong\n");
+    }
+
+    if (mainPlayer.equipped_helmet_slot_index != -1) {
+        struct Item helmet = get_item_by_id(mainPlayer.inventory[mainPlayer.equipped_helmet_slot_index].itemID);
+        printf("Helmet: %s+%d (+%d HP)\n", helmet.nama, mainPlayer.inventory[mainPlayer.equipped_helmet_slot_index].enchant_level, mainPlayer.bonus_hp);
+    } else {
+        printf("Helmet: Kosong\n");
+    }
     
     printf("\n--- INVENTORY (%d/%d) ---\n", mainPlayer.inventory_count, mainPlayer.max_inventory_slots);
     if (mainPlayer.inventory_count == 0) {

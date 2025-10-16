@@ -9,6 +9,7 @@
 struct InventorySlot {
     int itemID;
     int quantity;
+    int enchant_level; // <-- TAMBAHKAN BARIS INI
 };
 
 struct Player {
@@ -21,9 +22,14 @@ struct Player {
     int LEVEL;
     int XP;
     int GOLD;
-    int equipped_weapon_slot_index;     
-    int equipped_armor_slot_index;      
-    int equipped_helmet_slot_index;
+    int equipped_weapon_slot_index;     // <-- UBAH NAMA
+    int equipped_weapon_enchant_level;  // <-- TAMBAHKAN
+    int bonus_atk;
+    int equipped_armor_slot_index;      // <-- UBAH NAMA
+    int equipped_armor_enchant_level;   // <-- TAMBAHKAN
+    int bonus_def;      
+    int equipped_helmet_slot_index;     // <-- UBAH NAMA
+    int equipped_helmet_enchant_level;  // <-- TAMBAHKAN
     int bonus_hp;
     int skill_1_cd;
     int skill_2_cd;
