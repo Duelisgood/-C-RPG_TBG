@@ -89,7 +89,6 @@ void save_game_data() {
     // --- Simpan Info Skill ---
     fprintf(file, "active_skill_1_index=%d\n", mainPlayer.active_skill_1_index);
     fprintf(file, "active_skill_2_index=%d\n", mainPlayer.active_skill_2_index);
-    fprintf(file, "owned_skill_count=%d\n", mainPlayer.owned_skill_count);
     for (int i = 0; i < mainPlayer.owned_skill_count; i++) {
         fprintf(file, "skill_owned_id=%d\n", mainPlayer.owned_skill_ids[i]);
         // --- TAMBAHKAN KODE BARU DI SINI ---
@@ -137,21 +136,20 @@ void load_game_data(const char *username) {
             if (loadedPlayer.inventory_count < 100) { // Batas aman array
                 loadedPlayer.inventory_count++;
             }
+        }
         else if (sscanf(line, "skill_owned_id=%d", &value) == 1) { // <-- UBAH sscanf INI
         if (loadedPlayer.owned_skill_count < 50) {
             loadedPlayer.owned_skill_ids[loadedPlayer.owned_skill_count] = value;
             loadedPlayer.owned_skill_is_enchanted[loadedPlayer.owned_skill_count] = 0;
             loadedPlayer.owned_skill_count++;
-        }
-    } 
+            }
+        } 
         else if (sscanf(line, "skill_enchanted_status=%d", &value) == 1) {
-         
             if (loadedPlayer.owned_skill_count > 0) {
                 loadedPlayer.owned_skill_is_enchanted[loadedPlayer.owned_skill_count - 1] = value;
             }
         }
-            
-        } else if (sscanf(line, "%49[^=]=%d", key, &value) == 2) {
+        else if (sscanf(line, "%49[^=]=%d", key, &value) == 2) {
             if (strcmp(key, "LEVEL") == 0) loadedPlayer.LEVEL = value;
             else if (strcmp(key, "XP") == 0) loadedPlayer.XP = value;
             else if (strcmp(key, "GOLD") == 0) loadedPlayer.GOLD = value;
