@@ -119,8 +119,8 @@ void load_game_data(const char *username) {
     strcpy(loadedPlayer.username, username);
 
     // Atur kapasitas default, akan ditimpa jika ada di file save
-    loadedPlayer.max_inventory_slots = 10;
-    loadedPlayer.max_skills_owned = 4;
+    loadedPlayer.max_inventory_slots = 15;
+    loadedPlayer.max_skills_owned = 10;
 
     char line[100];
     char key[50];
@@ -178,8 +178,8 @@ void check_for_level_up() {
         mainPlayer.XP -= exp_needed; 
         
         // Peningkatan Stat (Anda bisa atur sesuai keinginan)
-        mainPlayer.MAX_HP += 10;
-        mainPlayer.HP += 10;    
+        mainPlayer.MAX_HP += 5;
+        mainPlayer.HP += 5;    
         mainPlayer.ATK += 2; 
         mainPlayer.DEF += 1; 
 
@@ -508,11 +508,6 @@ void change_skill() {
     save_game_data();
 }
 
-// File: src/player_manager.c
-// Ganti seluruh fungsi bag() Anda dengan ini:
-
-// File: src/player_manager.c
-// Ganti seluruh fungsi bag() Anda dengan ini
 
 void bag(){
     printf("\n--- STATS & EQUIPMENT ---\n");
