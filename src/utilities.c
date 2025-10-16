@@ -123,10 +123,11 @@ void help(){
     printf("CHANGE_SKILL  - Membuka menu untuk mengganti skill aktif yang bisa digunakan dalam pertarungan.\n");
     printf("OPEN_CHEST    - Membuka menu untuk menggunakan Kunci dan membuka Peti Harta Karun.\n");
     printf("LEARN_BOOk    - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
-    printf("QUIT          - Menyimpan permainan dan keluar dari program.\n");
     printf("SHOP          - Membuka toko untuk membeli dan menjual item.\n");
+    printf("TRAINER       - Mengunjungi Pelatih untuk mengelola skill (melupakan atau memperkuat).\n");
     printf("HELP          - Menampilkan daftar perintah ini.\n");
     printf("CLS           - Membersihkan layar konsol.\n");
+    printf("QUIT          - Menyimpan permainan dan keluar dari program.\n");
     printf("------------------------\n");
 }
 

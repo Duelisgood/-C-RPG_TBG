@@ -4,11 +4,12 @@
 #include <ctype.h>  
 #include <time.h>   
 
-#include "data/game_data.h" // Path diperbaiki
+#include "data/game_data.h" 
 #include "utilities.h"
 #include "player_manager.h"
 #include "combat.h"    
-#include "shop.h"   // Explore, Fight
+#include "shop.h"  
+#include "trainer.h"
 #define MAX_INPUT 50
 
 void start_game(){
@@ -49,6 +50,9 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 
+        else if (strcmp(aksiPengguna, "TRAINER") == 0) { // <-- TAMBAHKAN BLOK INI
+            open_trainer_menu();
+        }
         else if (strcmp(aksiPengguna, "SHOP") == 0) { // <-- TAMBAHKAN BLOK INI
             open_shop_menu();
         }
