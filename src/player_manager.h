@@ -12,6 +12,7 @@ void save_game_data();
 void load_game_data(const char *username);
 void login_system();
 void check_for_level_up();
+void recalculate_all_bonuses();
 
 // Fungsi Item dan Skill
 void tambahkan_item_ke_bag(int item_id_baru, int jumlah);

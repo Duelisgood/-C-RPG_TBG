@@ -124,6 +124,7 @@ void help(){
     printf("OPEN_CHEST    - Membuka menu untuk menggunakan Kunci dan membuka Peti Harta Karun.\n");
     printf("LEARN_BOOk    - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
     printf("SHOP          - Membuka toko untuk membeli dan menjual item.\n");
+    printf("ENCHANTER     - Mengunjungi Ahli Tempa untuk memperkuat equipment.\n");
     printf("TRAINER       - Mengunjungi Pelatih untuk mengelola skill (melupakan atau memperkuat).\n");
     printf("HELP          - Menampilkan daftar perintah ini.\n");
     printf("CLS           - Membersihkan layar konsol.\n");

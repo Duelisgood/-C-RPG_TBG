@@ -21,11 +21,9 @@ struct Player {
     int LEVEL;
     int XP;
     int GOLD;
-    int equipped_weapon_id;
-    int bonus_atk;
-    int equipped_armor_id;
-    int bonus_def;
-    int equipped_helmet_id; 
+    int equipped_weapon_slot_index;     
+    int equipped_armor_slot_index;      
+    int equipped_helmet_slot_index;
     int bonus_hp;
     int skill_1_cd;
     int skill_2_cd;

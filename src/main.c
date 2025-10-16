@@ -10,6 +10,7 @@
 #include "combat.h"    
 #include "shop.h"  
 #include "trainer.h"
+#include "enchanter.h"
 #define MAX_INPUT 50
 
 void start_game(){
@@ -50,6 +51,9 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore(); 
         } 
+        else if (strcmp(aksiPengguna, "ENCHANTER") == 0) { // <-- TAMBAHKAN
+            open_enchanter_menu();
+        }       
         else if (strcmp(aksiPengguna, "TRAINER") == 0) { // <-- TAMBAHKAN BLOK INI
             open_trainer_menu();
         }
