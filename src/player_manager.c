@@ -92,7 +92,7 @@ void save_game_data() {
     fprintf(file, "XP=%d\n", mainPlayer.XP);
     fprintf(file, "GOLD=%d\n", mainPlayer.GOLD);
     fprintf(file, "HP=%d\n", mainPlayer.HP);
-    // Catatan: MAX_HP, ATK, DEF tidak perlu disimpan karena akan dihitung ulang
+    fprintf(file, "world_quest_stage=%d\n", mainPlayer.world_quest_stage);
 
     // --- Simpan Equipment IDs ---
     fprintf(file, "equipped_weapon_slot_index=%d\n", mainPlayer.equipped_weapon_slot_index);
@@ -178,7 +178,7 @@ void load_game_data(const char *username) {
             else if (strcmp(key, "active_skill_1_index") == 0) loadedPlayer.active_skill_1_index = value;
             else if (strcmp(key, "equipped_helmet_enchant_level") == 0) loadedPlayer.equipped_helmet_enchant_level = value;
             else if (strcmp(key, "active_skill_2_index") == 0) loadedPlayer.active_skill_2_index = value;
-            // owned_skill_count dan inventory_count dihitung secara otomatis
+            else if (strcmp(key, "world_quest_stage") == 0) loadedPlayer.world_quest_stage = value;
         }
     }
     fclose(file);
@@ -290,6 +290,7 @@ void login_system() {
         mainPlayer.LEVEL = 1; // Pastikan level di-set ke 1
         mainPlayer.max_inventory_slots = 20; 
         mainPlayer.max_skills_owned = 10;
+        mainPlayer.world_quest_stage = 0;
         mainPlayer.HP = 10; 
         mainPlayer.MAX_HP = 10; 
         mainPlayer.ATK = 2; 

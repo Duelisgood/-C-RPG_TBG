@@ -11,13 +11,12 @@
 #include "shop.h"  
 #include "trainer.h"
 #include "enchanter.h"
+#include "quest.h"
 #define MAX_INPUT 50
 
 void start_game(){
-    //pesan awalan game
-   
-    
-    printf("\n        Selamat datang di D U N G E O N  C L I\n");
+    printf("---------------------------------------------------\n");
+    printf("\n    Selamat datang di D U N G E O N  C L I       \n");
     printf("---------------------------------------------------\n");
     printf("Ketik 'help' untuk melihat semua perintah yang tersedia.\n");
     printf("---------------------------------------------------\n");
@@ -59,6 +58,12 @@ void main_loop(){
         }
          else if (strcmp(aksiPengguna, "ENCHANTER") == 0) {
             open_enchanter_menu();
+        }
+        else if (strcmp(aksiPengguna, "QUEST") == 0) { // <-- TAMBAHKAN
+        show_world_quest_status();
+        }
+        else if (strcmp(aksiPengguna, "CHALLENGE") == 0) { // <-- TAMBAHKAN
+            challenge_quest_boss();
         }
         else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
             explore();

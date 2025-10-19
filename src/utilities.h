@@ -37,5 +37,7 @@ void drop_skill_book_by_rarity(int monster_rarity); // <-- TAMBAHKAN INI
 // ==========================================================
 void heal_to_max_hp(); // Pemulihan setelah/selama pertarungan
 void drop_chest_key_by_rarity(int monster_rarity);
+struct Monster get_monster_by_id(int id);
+int get_random_key_id_by_rarity(int required_rarity);
 
 #endif

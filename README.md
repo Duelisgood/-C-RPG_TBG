@@ -18,7 +18,7 @@ Game ini berjalan sepenuhnya di dalam konsol atau terminal. Kamu akan berinterak
     * *Compile* dan *jalankan* file `.c` utama dari proyek ini. Kamu bisa menggunakan *compiler* seperti GCC:
         ```bash
         # Compile program
-        gcc -Wall -Wextra -g3 -Isrc src/main.c src/player_manager.c src/combat.c src/utilities.c src/shop.c src/trainer.c src/enchanter.c src/data/monster_data.c src/data/item_data.c src/data/skill_data.c src/data/treasure_data.c -o game.exe
+        gcc -Wall -Wextra -g3 -Isrc src/main.c src/player_manager.c src/combat.c src/utilities.c src/shop.c src/trainer.c src/enchanter.c src/quest.c src/data/monster_data.c src/data/item_data.c src/data/skill_data.c src/data/treasure_data.c -o game.exe
 
         # Jalankan game
         ./game

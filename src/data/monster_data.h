@@ -12,6 +12,7 @@ struct Monster {
     int skillPower;
     int goldDrop;           
     int expDrop;
+    int is_quest_boss;
 };
 
 extern struct Monster daftarMonster[];

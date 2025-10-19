@@ -125,6 +125,8 @@ void help(){
     printf("LEARN_BOOk    - Membuka menu untuk mempelajari skill baru dari buku yang dimiliki.\n");
     printf("SHOP          - Membuka toko untuk membeli dan menjual item.\n");
     printf("ENCHANTER     - Mengunjungi Ahli Tempa untuk memperkuat equipment.\n");
+    printf("QUEST         - Melihat status World Quest saat ini.\n"); 
+    printf("CHALLENGE     - Menantang bos atau sub-boss quest berikutnya.\n"); 
     printf("TRAINER       - Mengunjungi Pelatih untuk mengelola skill (melupakan atau memperkuat).\n");
     printf("HELP          - Menampilkan daftar perintah ini.\n");
     printf("CLS           - Membersihkan layar konsol.\n");
@@ -290,5 +292,29 @@ void handle_monster_loot_drop(int monster_rarity) {
         // 50% kemungkinan (50-99): Drop Buku Skill
         drop_skill_book_by_rarity(monster_rarity);
     }
+}
+
+struct Monster get_monster_by_id(int id) {
+    for (int i = 0; i < JUMLAH_MONSTER; i++) {
+        if (daftarMonster[i].monsterID == id) {
+            return daftarMonster[i];
+        }
+    }
+    struct Monster empty = {0};
+    return empty;
+}
+
+int get_random_key_id_by_rarity(int required_rarity) {
+    int available_key_ids[JUMLAH_ITEM];
+    int count = 0;
+    for (int i = 0; i < JUMLAH_ITEM; i++) {
+        if (strcmp(daftarItem[i].type, "CHEST") == 0 && daftarItem[i].rarity == required_rarity) {
+            available_key_ids[count++] = daftarItem[i].itemID;
+        }
+    }
+    if (count > 0) {
+        return available_key_ids[rand() % count];
+    }
+    return 0; // Tidak ada kunci rarity tsb ditemukan
 }
 

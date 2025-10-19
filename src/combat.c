@@ -7,7 +7,7 @@
 #include "combat.h" // Sertakan header diri sendiri
 #include "utilities.h"
 #include "player_manager.h"
-
+#include "quest.h"
 #include "data/game_data.h"
 #include "data/monster_data.h"
 #include "data/item_data.h"
@@ -57,13 +57,33 @@ void lakukan_pertarungan(struct Monster musuh) {
         if (mainPlayer.skill_1_cd > 0) mainPlayer.skill_1_cd--;
         if (mainPlayer.skill_2_cd > 0) mainPlayer.skill_2_cd--;
 
-        // Tampilkan Status
         printf("\n== Status ==\n");
         printf("Player HP: %d | %s HP: %d\n", mainPlayer.HP, musuh_ptr->nama, musuh_ptr->healthPoint);
 
-        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s%s) | [SKILL 2] (%s%s) | [KABUR]\n",
-            skill1_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_1_index] == 1) ? "+" : "",
-            skill2_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_2_index] == 1) ? "+" : "");
+        // --- BARU: Siapkan string untuk status Cooldown ---
+        char cd1_status[15]; // String untuk status CD skill 1
+        char cd2_status[15]; // String untuk status CD skill 2
+
+        // Cek Cooldown Skill 1
+        if (mainPlayer.skill_1_cd > 0) {
+            // Jika masih cooldown, tampilkan sisa turn
+            sprintf(cd1_status, "CD: %d", mainPlayer.skill_1_cd);
+        } else {
+            // Jika tidak (CD = 0), tampilkan "Siap!"
+            strcpy(cd1_status, "Siap!");
+        }
+
+        // Cek Cooldown Skill 2
+        if (mainPlayer.skill_2_cd > 0) {
+            sprintf(cd2_status, "CD: %d", mainPlayer.skill_2_cd);
+        } else {
+            strcpy(cd2_status, "Siap!");
+        }
+
+        // Tampilkan Status (dengan info Cooldown)
+        printf("Pilih Aksi: [ATTACK] | [SKILL 1] (%s%s - %s) | [SKILL 2] (%s%s - %s) | [KABUR]\n",
+            skill1_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_1_index] == 1) ? "+" : "", cd1_status,
+            skill2_data.nama, (mainPlayer.owned_skill_is_enchanted[mainPlayer.active_skill_2_index] == 1) ? "+" : "", cd2_status);
         
         // --- 2. GILIRAN PLAYER ---
         if (fgets(input, MAX_INPUT, stdin) == NULL) continue; 
@@ -159,7 +179,15 @@ void lakukan_pertarungan(struct Monster musuh) {
             mainPlayer.XP += musuh_ptr->expDrop;
             printf("Anda mendapatkan %d Gold dan %d XP.\n", musuh_ptr->goldDrop, musuh_ptr->expDrop);
 
-            handle_monster_loot_drop(musuh_ptr->rarity); 
+        if (musuh_ptr->is_quest_boss) {
+            int is_main = (musuh_ptr->monsterID % 10 == 0);
+            handle_quest_boss_victory(musuh_ptr->rarity, is_main);
+        } else {
+    
+            handle_monster_loot_drop(musuh_ptr->rarity);
+        }
+
+        heal_to_max_hp(); 
 
             heal_to_max_hp();
             check_for_level_up();
@@ -307,8 +335,6 @@ void explore(){
         } else {
         
             struct Item item_ditemukan = get_random_item_by_rarity(prize_rarity);
-            
-            // Tambahkan item ke bag (misal: selalu 1 buah)
             tambahkan_item_ke_bag(item_ditemukan.itemID, 1);
             
             printf("Anda menemukan Equipment: ID %d - %s (Rarity %d).\n", item_ditemukan.itemID, item_ditemukan.nama, item_ditemukan.rarity);
