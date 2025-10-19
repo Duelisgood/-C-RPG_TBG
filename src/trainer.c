@@ -68,7 +68,7 @@ void forget_skill_menu() {
     bacaInput(confirm);
 
     if (strcmp(confirm, "Y") == 0) {
-        // Geser semua skill setelahnya untuk menutupi celah
+       
         for (int i = skill_index; i < mainPlayer.owned_skill_count - 1; i++) {
             mainPlayer.owned_skill_ids[i] = mainPlayer.owned_skill_ids[i + 1];
         }
@@ -77,11 +77,11 @@ void forget_skill_menu() {
 
         printf("Anda berhasil melupakan '%s' dan mendapatkan %d XP!\n", skill_to_forget.nama, exp_reward);
         
-        // Penting: Perbarui indeks skill aktif jika posisinya bergeser
+       
         if (mainPlayer.active_skill_1_index > skill_index) mainPlayer.active_skill_1_index--;
         if (mainPlayer.active_skill_2_index > skill_index) mainPlayer.active_skill_2_index--;
 
-        check_for_level_up(); // Cek apakah XP cukup untuk naik level
+        check_for_level_up(); 
         save_game_data();
     } else {
         printf("Batal melupakan skill.\n");
@@ -100,7 +100,7 @@ void enchant_skill_menu() {
         if (mainPlayer.owned_skill_is_enchanted[i] == 1) {
             printf("  ID: %d | %s+ (Rarity: %d) | SUDAH DIPERKUAT\n", s.skillID, s.nama, s.rarity);
         } else {
-            int enchant_cost = s.rarity * 1000; // Contoh: Rarity 1 = 1000 Gold
+            int enchant_cost = s.rarity * 100; 
             printf("  ID: %d | %s (Rarity: %d) | Biaya: %d Gold | Bonus: +%d Efek\n", s.skillID, s.nama, s.rarity, enchant_cost, s.rarity);
         }
     }

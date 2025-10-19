@@ -345,16 +345,25 @@ void login_system() {
         strcpy(mainPlayer.username, username);
         load_game_data(mainPlayer.username); 
         
-        return; // Keluar dari login_system, lanjut ke main game
+        return; 
     } 
 }
 
 void use_equipment() {
     int input_id;
     printf("\n--- EQUIP ITEM ---\n");
-    printf("Masukkan ID Item untuk dilengkapi: ");
-    scanf("%d", &input_id);
+    printf("Masukkan ID Item untuk dilengkapi (atau 0 untuk batal): ");
+    if (scanf("%d", &input_id) != 1) {
+        printf("Input tidak valid.\n");
+        while (getchar() != '\n');
+        return;
+    }
     while (getchar() != '\n');
+
+    if (input_id == 0) {
+        printf("Batal memakai item.\n");
+        return;
+    }
 
     // Cari item di inventory dan dapatkan INDEKS-nya
     int item_slot_index = -1;
@@ -366,46 +375,75 @@ void use_equipment() {
     }
 
     if (item_slot_index == -1) {
-        printf("Anda tidak memiliki item dengan ID tersebut.\n");
+        printf("Anda tidak memiliki item dengan ID %d.\n", input_id);
         return;
     }
 
     struct Item item_pilihan = get_item_by_id(input_id);
 
-    // Lepaskan equipment jika pemain memilih item yang sama dengan yang dipakai
-    if (strcmp(item_pilihan.type, "WEAPON") == 0) {
-        if (mainPlayer.equipped_weapon_slot_index == item_slot_index) {
-            mainPlayer.equipped_weapon_slot_index = -1; // Lepas
-            printf("Melepas %s.\n", item_pilihan.nama);
-        } else {
-            mainPlayer.equipped_weapon_slot_index = item_slot_index; // Pakai
-            printf("Memakai %s.\n", item_pilihan.nama);
+    int required_level = 0;
+    int is_restricted_equipment = 0;
+
+    // Cek hanya untuk tipe WEAPON, ARMOR, HELMET
+    if (strcmp(item_pilihan.type, "WEAPON") == 0 ||
+        strcmp(item_pilihan.type, "ARMOR") == 0 ||
+        strcmp(item_pilihan.type, "HELMET") == 0)
+    {
+        is_restricted_equipment = 1; 
+
+        switch (item_pilihan.rarity) {
+            case 1: required_level = 1; break;
+            case 2: required_level = 5; break;
+            case 3: required_level = 10; break;
+            case 4: required_level = 15; break;
+            case 5: required_level = 20; break;
+            default: required_level = 999; break; 
         }
-    } else if (strcmp(item_pilihan.type, "ARMOR") == 0) {
-        if (mainPlayer.equipped_armor_slot_index == item_slot_index) {
-            mainPlayer.equipped_armor_slot_index = -1;
-            printf("Melepas %s.\n", item_pilihan.nama);
-        } else {
-            mainPlayer.equipped_armor_slot_index = item_slot_index;
-            printf("Memakai %s.\n", item_pilihan.nama);
+
+        if (mainPlayer.LEVEL < required_level) {
+            printf("!!! Level Anda %d tidak cukup! Item '%s' membutuhkan Level %d.\n", 
+                   mainPlayer.LEVEL, item_pilihan.nama, required_level);
+            return; 
         }
-    } else if (strcmp(item_pilihan.type, "HELMET") == 0) {
-        if (mainPlayer.equipped_helmet_slot_index == item_slot_index) {
-            mainPlayer.equipped_helmet_slot_index = -1;
-            printf("Melepas %s.\n", item_pilihan.nama);
-        } else {
-            mainPlayer.equipped_helmet_slot_index = item_slot_index;
-            printf("Memakai %s.\n", item_pilihan.nama);
-        }
-    } else {
-        printf("Item ini tidak bisa dipakai.\n");
-        return;
     }
 
-    recalculate_all_bonuses();
-    apply_stat_boosts();
-    save_game_data();
-    printf("Stat Anda telah diperbarui.\n");
+    if (is_restricted_equipment) {
+        if (strcmp(item_pilihan.type, "WEAPON") == 0) {
+            if (mainPlayer.equipped_weapon_slot_index == item_slot_index) {
+                mainPlayer.equipped_weapon_slot_index = -1; // Lepas
+                printf("Melepas %s.\n", item_pilihan.nama);
+            } else {
+                mainPlayer.equipped_weapon_slot_index = item_slot_index; // Pakai
+                printf("Memakai %s.\n", item_pilihan.nama);
+            }
+        } else if (strcmp(item_pilihan.type, "ARMOR") == 0) {
+            if (mainPlayer.equipped_armor_slot_index == item_slot_index) {
+                mainPlayer.equipped_armor_slot_index = -1;
+                printf("Melepas %s.\n", item_pilihan.nama);
+            } else {
+                mainPlayer.equipped_armor_slot_index = item_slot_index;
+                printf("Memakai %s.\n", item_pilihan.nama);
+            }
+        } else if (strcmp(item_pilihan.type, "HELMET") == 0) {
+            if (mainPlayer.equipped_helmet_slot_index == item_slot_index) {
+                mainPlayer.equipped_helmet_slot_index = -1;
+                printf("Melepas %s.\n", item_pilihan.nama);
+            } else {
+                mainPlayer.equipped_helmet_slot_index = item_slot_index;
+                printf("Memakai %s.\n", item_pilihan.nama);
+            }
+        }
+        
+
+        recalculate_all_bonuses();
+        apply_stat_boosts();
+        save_game_data();
+        printf("Stat Anda telah diperbarui.\n");
+
+    } else {
+        printf("Item '%s' tidak bisa dipakai sebagai equipment.\n", item_pilihan.nama);
+        return;
+    }
 }
 
 struct Skill get_skill_by_id(int id);
@@ -443,7 +481,7 @@ void change_skill() {
 
     if (active_slot == 0) {
         printf("Batal mengganti skill.\n");
-        return; // Keluar dari fungsi jika dibatalkan
+        return; 
     }
 
     if (active_slot != 1 && active_slot != 2) {
@@ -453,13 +491,11 @@ void change_skill() {
 
     printf("Masukkan ID Skill BARU dari daftar skill yang dimiliki: ");
     if (scanf("%d", &skill_id_baru) != 1) {
-        // ... (pembersihan input)
         return;
     }
     while (getchar() != '\n');
 
     
-
     // ==========================================================
     // VALIDASI: Cek apakah skillID baru dimiliki pemain
     // ==========================================================
@@ -476,18 +512,30 @@ void change_skill() {
         return;
     }
     
-    // ==========================================================
-    // VALIDASI: Cek apakah skillID sudah aktif di slot lain
-    // ==========================================================
+    struct Skill skill_baru = get_skill_by_id(skill_id_baru);
+    int required_level = 0;
+
+    switch (skill_baru.rarity) {
+        case 1: required_level = 1; break;
+        case 2: required_level = 5; break;
+        case 3: required_level = 10; break;
+        case 4: required_level = 15; break;
+        case 5: required_level = 20; break;
+        default: required_level = 999; break; 
+    }
+
+    if (mainPlayer.LEVEL < required_level) {
+        printf("!!! Level Anda %d tidak cukup! Skill '%s' membutuhkan Level %d untuk digunakan.\n", 
+               mainPlayer.LEVEL, skill_baru.nama, required_level);
+        return; 
+    }
+
     if ((active_slot == 1 && skill_id_baru == mainPlayer.owned_skill_ids[mainPlayer.active_skill_2_index]) ||
         (active_slot == 2 && skill_id_baru == mainPlayer.owned_skill_ids[mainPlayer.active_skill_1_index])) {
-        printf("ERROR: Skill %s sudah aktif di slot lain.\n", get_skill_by_id(skill_id_baru).nama);
         return;
     }
 
-    // Lakukan penggantian skill
-    struct Skill skill_baru = get_skill_by_id(skill_id_baru);
-    
+   
     if (active_slot == 1) {
         mainPlayer.active_skill_1_index = skill_index_in_owned;
         mainPlayer.skill_1_cd = 0; // Reset CD saat diganti
@@ -499,7 +547,6 @@ void change_skill() {
     printf("\nSUKSES: Slot %d berhasil diganti menjadi %s.\n", active_slot, skill_baru.nama);
     save_game_data();
 }
-
 
 void bag(){
     printf("\n--- STATS & EQUIPMENT ---\n");

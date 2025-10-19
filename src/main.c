@@ -29,53 +29,59 @@ void main_loop(){
 
     while (game_running)
     {
+        int command_executed = 1; 
+        printf("\n> "); 
         bacaInput(aksiPengguna);
+
         if (strcmp(aksiPengguna, "HELP") == 0) {
             help();
-        } 
+        }
         else if (strcmp(aksiPengguna, "BAG") == 0) {
             bag();
-        }  
+        }
         else if (strcmp(aksiPengguna, "USE_EQUIPMENT") == 0) {
-            use_equipment(); 
+            use_equipment();
         }
         else if (strcmp(aksiPengguna, "CHANGE_SKILL") == 0) {
-            change_skill(); 
-        }  
-        else if (strcmp(aksiPengguna, "OPEN_CHEST") == 0) { // <-- COMMAND BARU
-            open_chest_menu(); // <-- Panggil fungsi menu chest baru
+            change_skill();
         }
-        else if (strcmp(aksiPengguna, "LEARN_BOOK") == 0) { // <-- TAMBAHKAN BLOK INI
+        else if (strcmp(aksiPengguna, "OPEN_CHEST") == 0) {
+            open_chest_menu();
+        }
+        else if (strcmp(aksiPengguna, "LEARN") == 0) {
             learn_skill_menu();
         }
-        else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
-            explore(); 
-        } 
-        else if (strcmp(aksiPengguna, "ENCHANTER") == 0) { // <-- TAMBAHKAN
-            open_enchanter_menu();
-        }       
-        else if (strcmp(aksiPengguna, "TRAINER") == 0) { // <-- TAMBAHKAN BLOK INI
-            open_trainer_menu();
-        }
-        else if (strcmp(aksiPengguna, "SHOP") == 0) { // <-- TAMBAHKAN BLOK INI
+         else if (strcmp(aksiPengguna, "SHOP") == 0) {
             open_shop_menu();
         }
-        else if (strcmp(aksiPengguna, "QUIT") == 0) { // Hapus || strcmp(aksiPengguna, "quit") == 0
-            save_game_data(); // Simpan data sebelum keluar
-            printf("Menyimpan dan keluar. Sampai jumpa!\n");
-            return; // Keluar dari main_loop
+         else if (strcmp(aksiPengguna, "TRAINER") == 0) {
+            open_trainer_menu();
         }
-        else if (strcmp(aksiPengguna, "CLS") == 0)
-        {
+         else if (strcmp(aksiPengguna, "ENCHANTER") == 0) {
+            open_enchanter_menu();
+        }
+        else if (strcmp(aksiPengguna, "EXPLORE") == 0) {
+            explore();
+        }
+        else if (strcmp(aksiPengguna, "QUIT") == 0) {
+            save_game_data();
+            printf("Menyimpan dan keluar. Sampai jumpa!\n");
+            return; 
+        }
+        else if (strcmp(aksiPengguna, "CLS") == 0) {
             cls();
         }
         else {
             printf("\n!!! Pilihan aksi tidak valid: %s\n", aksiPengguna);
+            command_executed = 0; 
         }
 
-    }
-    
-}
+        if (command_executed) {
+            printf("\n(Kembali ke menu utama...)\n");
+        }
+    } 
+
+} 
 
 int main()
 {

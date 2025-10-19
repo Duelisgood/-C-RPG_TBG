@@ -138,7 +138,7 @@ void enchant_armor_menu() {
 
 // --- FUNGSI BARU UNTUK HELMET ---
 void enchant_helmet_menu() {
-    // 1. Cek apakah ada helmet yang sedang dipakai
+    
     if (mainPlayer.equipped_helmet_slot_index == -1) {
         printf("Anda harus memakai sebuah helmet untuk bisa memperkuatnya.\n");
         return;
@@ -155,13 +155,12 @@ void enchant_helmet_menu() {
     printf("Helmet Saat Ini : %s\n", helmet_data.nama);
     printf("Level           : +%d\n", current_level);
 
-    // 3. Cek apakah sudah mencapai level maksimal
+
     if (current_level >= 3) {
         printf("Helmet ini sudah mencapai level perkuatan maksimal!\n");
         return;
     }
 
-    // 4. Hitung biaya dan bonus untuk level selanjutnya
     int base_cost = helmet_data.rarity * 100;
     int enchant_cost = base_cost * (current_level + 1);
     int bonus_hp = helmet_data.rarity;
@@ -171,23 +170,20 @@ void enchant_helmet_menu() {
     printf("---------------------------\n");
     printf("Emas Anda       : %d Gold\n", mainPlayer.GOLD);
 
-    // 5. Validasi Gold pemain
     if (mainPlayer.GOLD < enchant_cost) {
         printf("Emas Anda tidak cukup.\n");
         return;
     }
 
-    // 6. Minta konfirmasi dari pemain
     printf("Perkuat helmet ini? [Y/N]: ");
     char confirm[10];
     bacaInput(confirm);
 
     if (strcmp(confirm, "Y") == 0) {
-        // 7. Lakukan proses enchant
+    
         mainPlayer.GOLD -= enchant_cost;
-        helmet_slot->enchant_level++; // Tingkatkan level enchant pada item di inventaris
+        helmet_slot->enchant_level++;
 
-        // 8. Hitung ulang semua stat dan simpan permainan
         recalculate_all_bonuses();
         apply_stat_boosts();
 
