@@ -47,7 +47,7 @@ void main_loop(){
         else if (strcmp(aksiPengguna, "OPEN_CHEST") == 0) {
             open_chest_menu();
         }
-        else if (strcmp(aksiPengguna, "LEARN") == 0) {
+        else if (strcmp(aksiPengguna, "LEARN_BOOK") == 0) {
             learn_skill_menu();
         }
          else if (strcmp(aksiPengguna, "SHOP") == 0) {
