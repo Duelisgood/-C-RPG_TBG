@@ -199,7 +199,7 @@ void load_game_data(const char *username) {
 
 
 void check_for_level_up() {
-    int exp_needed = 100 * mainPlayer.LEVEL;
+    int exp_needed = 50 * mainPlayer.LEVEL;
     
     // Perulangan untuk menangani multi-level up
     while (mainPlayer.XP >= exp_needed) {
@@ -208,8 +208,8 @@ void check_for_level_up() {
         mainPlayer.XP -= exp_needed; 
         
         // Peningkatan Stat (Anda bisa atur sesuai keinginan)
-        mainPlayer.MAX_HP += 5;
-        mainPlayer.HP += 5;    
+        mainPlayer.MAX_HP += 2;
+        mainPlayer.HP += 2;    
         mainPlayer.ATK += 2; 
         mainPlayer.DEF += 1; 
 
@@ -220,12 +220,12 @@ void check_for_level_up() {
 
         printf("\n***********************************\n");
         printf("!!! SELAMAT! Anda naik ke LEVEL %d !!!\n", mainPlayer.LEVEL);
-        printf("Stat bertambah: MAX HP +10, ATK +2, DEF +1.\n");
+        printf("Stat bertambah: MAX HP +2, ATK +2, DEF +1.\n");
         printf("Kapasitas bertambah: Tas +5 slot, Skill +2 slot.\n"); // <-- Perbarui pesan
         printf("***********************************\n");
         
         // Hitung ulang EXP yang dibutuhkan untuk level berikutnya
-        exp_needed = 100 * mainPlayer.LEVEL;
+        exp_needed = 50 * mainPlayer.LEVEL;
     }
 }
 
@@ -552,7 +552,7 @@ void change_skill() {
 void bag(){
     printf("\n--- STATS & EQUIPMENT ---\n");
     printf("Username: %s\n", mainPlayer.username);
-    printf("Level: %d | XP: %d / %d\n", mainPlayer.LEVEL, mainPlayer.XP, 100 * mainPlayer.LEVEL);
+    printf("Level: %d | XP: %d / %d\n", mainPlayer.LEVEL, mainPlayer.XP, 50 * mainPlayer.LEVEL);
     printf("HP: %d/%d | ATK: %d | DEF: %d\n", mainPlayer.HP, mainPlayer.MAX_HP, mainPlayer.ATK, mainPlayer.DEF);
     printf("Gold: %d\n", mainPlayer.GOLD);
     
